@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#090908" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AUREA" />
+  <title>AUREA — Protect your attention</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <div id="splash" class="splash">
+      <div class="brand-seal">A</div>
+      <div class="brand-word">AUREA</div>
+      <p>Protect your attention.</p>
+    </div>
+
+    <main id="view" class="view"></main>
+
+    <nav id="tabbar" class="tabbar hidden" aria-label="Main navigation">
+      <button data-route="dashboard" class="tab active" aria-label="Home"><span class="ico home"></span><small>Home</small></button>
+      <button data-route="focus" class="tab" aria-label="Focus"><span class="ico target"></span><small>Focus</small></button>
+      <button data-route="insights" class="tab" aria-label="Insights"><span class="ico bars"></span><small>Insights</small></button>
+      <button data-route="report" class="tab" aria-label="Report"><span class="ico report"></span><small>Report</small></button>
+      <button data-route="settings" class="tab" aria-label="Settings"><span class="ico gear"></span><small>Settings</small></button>
+    </nav>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
