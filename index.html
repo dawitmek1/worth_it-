@@ -12,12 +12,15 @@
 <style>
 /* ── RESET ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { height: 100%; overflow: hidden; }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
 body {
-  height: 100dvh;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-user-select: none;
@@ -332,16 +335,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 <div id="shell">
   <div id="scroller"><div id="page"></div></div>
   <nav id="nav"><div class="nav-inner" id="navrow"></div></nav>
-</div>
-
-<div class="modal-bg" id="mod-focus" onclick="if(event.target===this)closeModal('focus')">
-  <div class="modal-sheet" id="mod-focus-sheet"></div>
-</div>
-<div class="modal-bg" id="mod-insight" onclick="if(event.target===this)closeModal('insight')">
-  <div class="modal-sheet" id="mod-insight-sheet"></div>
-</div>
-<div class="inst-bg" id="inst-bg" onclick="if(event.target===this)closeInst()">
-  <div class="inst-sheet" id="inst-sheet"></div>
+  <div class="modal-bg" id="mod-focus" onclick="if(event.target===this)closeModal('focus')">
+    <div class="modal-sheet" id="mod-focus-sheet"></div>
+  </div>
+  <div class="modal-bg" id="mod-insight" onclick="if(event.target===this)closeModal('insight')">
+    <div class="modal-sheet" id="mod-insight-sheet"></div>
+  </div>
+  <div class="inst-bg" id="inst-bg" onclick="if(event.target===this)closeInst()">
+    <div class="inst-sheet" id="inst-sheet"></div>
+  </div>
 </div>
 
 <script>
