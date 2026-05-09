@@ -345,6 +345,24 @@ input,select{font-family:inherit;outline:none;}
 #nav *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;}
 .modal-bg:not(.open),.inst-bg:not(.open),.notif-panel:not(.open),.add-limit-bg:not(.open){display:none!important;}
 .focus-dock{bottom:calc(var(--nav-h) + 12px)!important;z-index:120!important;}
+
+
+/* Hide bottom nav during active immersive Focus Mode */
+#shell.focus-immersive #nav{
+  opacity:0!important;
+  transform:translateY(100%)!important;
+  pointer-events:none!important;
+}
+#shell.focus-immersive #scroller{
+  bottom:0!important;
+}
+#shell.focus-immersive .focus-live{
+  z-index:320!important;
+}
+#shell.focus-immersive .focus-dock{
+  display:none!important;
+}
+
 </style>
 </head>
 <body>
@@ -1498,6 +1516,8 @@ function drawFocusDock(t){
 }
 function drawFocusLive(t){
   const el=document.getElementById("focus-live");
+  const shell=document.getElementById("shell");
+  if(shell) shell.classList.toggle("focus-immersive", !!S.fimmersive);
   if(!el)return;
   if(!S.fimmersive){el.className="focus-live";el.innerHTML="";return;}
   const paused=!S.frun;
