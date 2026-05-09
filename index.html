@@ -48,8 +48,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 #nav {
   flex-shrink: 0;
   border-top: 1px solid;
-  padding-top: 8px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  padding: 6px 4px 0;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+  min-height: 56px;
 }
 .nav-inner {
   max-width: 430px;
@@ -87,7 +88,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   max-width: 430px;
   margin: 0 auto;
   padding: 0 16px;
-  padding-bottom: 20px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 32px);
 }
 
 /* ── TOPBAR ── */
@@ -172,7 +173,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ── RING ── */
 .ring-wrap { position: relative; flex-shrink: 0; }
-.ring-inner { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+.ring-inner {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 18px; /* keeps text away from the stroke edge */
+}
 
 /* ── FOCUS RING ── */
 .focus-ring {
@@ -291,13 +298,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ── ANIMATIONS ── */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-.fu { animation: fadeUp 0.28s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.fu1 { animation-delay: 0.04s; }
-.fu2 { animation-delay: 0.09s; }
-.fu3 { animation-delay: 0.14s; }
-.fu4 { animation-delay: 0.19s; }
-.fu5 { animation-delay: 0.24s; }
-.fu6 { animation-delay: 0.29s; }
+.fu { animation: fadeUp 0.26s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.fu1 { animation-delay: 0.03s; }
+.fu2 { animation-delay: 0.07s; }
+.fu3 { animation-delay: 0.12s; }
+.fu4 { animation-delay: 0.17s; }
+.fu5 { animation-delay: 0.22s; }
+.fu6 { animation-delay: 0.27s; }
+/* suppress all animations when only theme changed */
+.no-anim, .no-anim * { animation: none !important; transition: color 0.15s, background 0.15s, border-color 0.15s !important; }
 
 /* ── UTILS ── */
 .row { display: flex; align-items: center; }
@@ -485,17 +494,18 @@ function prog(val, col) {
 
 function ring(val, sz) {
   const c = t();
-  const r = 46, circ = 2 * Math.PI * r;
+  // r=38 in a 100×100 viewBox → inner clear area = (38-6)px radius = plenty of room for text
+  const r = 38, sw = 7, circ = 2 * Math.PI * r;
   const off = circ - (val / 100) * circ;
   return `<div class="ring-wrap" style="width:${sz}px;height:${sz}px">
-    <svg viewBox="0 0 120 120" width="${sz}" height="${sz}" style="transform:rotate(-90deg)">
-      <circle cx="60" cy="60" r="${r}" stroke="${c.surf2}" stroke-width="9" fill="none"/>
-      <circle cx="60" cy="60" r="${r}" stroke="${c.acc}" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
+    <svg viewBox="0 0 100 100" width="${sz}" height="${sz}" style="transform:rotate(-90deg)">
+      <circle cx="50" cy="50" r="${r}" stroke="${c.surf2}" stroke-width="${sw}" fill="none"/>
+      <circle cx="50" cy="50" r="${r}" stroke="${c.acc}" stroke-width="${sw}" fill="none" stroke-linecap="round" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
     </svg>
     <div class="ring-inner">
-      <div style="font-size:21px;font-weight:700;letter-spacing:-0.04em;color:${c.txt}">${val}%</div>
-      <div style="font-size:10px;color:${c.mut};margin-top:1px">of daily limit</div>
-      <div style="font-size:10px;color:${c.mut};margin-top:2px">8h 0m</div>
+      <div style="font-size:19px;font-weight:700;letter-spacing:-0.04em;color:${c.txt};line-height:1">${val}%</div>
+      <div style="font-size:9px;color:${c.mut};margin-top:3px;line-height:1.3">of daily<br>limit</div>
+      <div style="font-size:9px;color:${c.mut};margin-top:3px">8h 0m</div>
     </div>
   </div>`;
 }
@@ -951,6 +961,7 @@ function drawNav() {
 // ─── MAIN DRAW ───────────────────────────────────────────────────────────────
 
 let prevTab = "";
+let prevTheme = "";
 
 function draw() {
   const c = t();
@@ -960,7 +971,8 @@ function draw() {
   const scroller = document.getElementById("scroller");
   scroller.style.background = c.page;
 
-  const tabChanged = S.tab !== prevTab;
+  const tabChanged   = S.tab   !== prevTab;
+  const themeChanged = S.theme !== prevTheme;
 
   let html = "";
   if (S.tab === "insights") html = pageInsights();
@@ -972,8 +984,19 @@ function draw() {
   const page = document.getElementById("page");
   page.innerHTML = html;
 
+  // Only animate on tab changes, not theme switches
+  const wrap = document.getElementById("page-wrap");
+  if (wrap) {
+    if (themeChanged && !tabChanged) {
+      wrap.classList.add("no-anim");
+    } else {
+      wrap.classList.remove("no-anim");
+    }
+  }
+
   if (tabChanged) scroller.scrollTop = 0;
-  prevTab = S.tab;
+  prevTab   = S.tab;
+  prevTheme = S.theme;
 
   drawModals();
 }
@@ -1120,6 +1143,7 @@ Object.assign(window, { upd, doNav, doPreset, doStart, doPause, doReset, haptic,
 
 initPWA();
 applyTheme(TH[S.theme]);
+prevTheme = S.theme;
 draw();
 </script>
 </body>
