@@ -10,730 +10,589 @@
 <meta name="theme-color" content="#000000" id="tc">
 <title>ClearMind</title>
 <style>
-/* ── RESET ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  overscroll-behavior: none;
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-}
-button { font-family: inherit; cursor: pointer; border: none; background: none; -webkit-appearance: none; outline: none; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;margin:0;padding:0;overflow:hidden;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-appearance:none;outline:none;}
+input,select{font-family:inherit;outline:none;}
 
-/* ── LAYOUT SHELL ── */
-#shell {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+/* Shell */
+#shell{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;overflow:hidden;}
+#scroller{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;}
+#scroller::-webkit-scrollbar{display:none;}
 
-/* ── SCROLL AREA ── */
-#scroller {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-}
-#scroller::-webkit-scrollbar { display: none; }
+/* Nav */
+#nav{flex-shrink:0;border-top:1px solid;}
+.nav-inner{max-width:430px;margin:0 auto;display:flex;padding:6px 4px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 6px);}
+.ntab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;border-radius:12px;transition:transform .15s cubic-bezier(.34,1.56,.64,1);position:relative;}
+.ntab:active{transform:scale(.85);}
+.ntab .lbl{font-size:10px;font-weight:500;}
+.ntab.on .lbl{font-weight:700;}
+.ntab-dot{position:absolute;bottom:0;width:4px;height:4px;border-radius:50%;opacity:0;transform:scale(0);transition:opacity .2s,transform .2s cubic-bezier(.34,1.56,.64,1);}
+.ntab.on .ntab-dot{opacity:1;transform:scale(1);}
 
-/* ── BOTTOM NAV ── */
-#nav {
-  flex-shrink: 0;
-  border-top: 1px solid;
-  padding-top: 6px;
-  padding-left: 4px;
-  padding-right: 4px;
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
-}
-.nav-inner {
-  max-width: 430px;
-  margin: 0 auto;
-  display: flex;
-  padding: 0 4px;
-}
-.ntab {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 6px 0;
-  border-radius: 12px;
-  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-}
-.ntab:active { transform: scale(0.85); }
-.ntab span.label { font-size: 10px; font-weight: 500; }
-.ntab.on span.label { font-weight: 700; }
-.ntab-dot {
-  position: absolute;
-  bottom: 1px;
-  width: 4px; height: 4px;
-  border-radius: 50%;
-  opacity: 0;
-  transform: scale(0);
-  transition: opacity 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.ntab.on .ntab-dot { opacity: 1; transform: scale(1); }
+/* Page */
+#page-wrap{max-width:430px;margin:0 auto;padding:0 16px 32px;}
 
-/* ── PAGE CONTENT ── */
-#page-wrap {
-  max-width: 430px;
-  margin: 0 auto;
-  padding: 0 16px;
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 32px);
-}
+/* Topbar */
+.topbar{position:sticky;top:0;z-index:10;border-bottom:1px solid;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0px));-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);}
+.topbar-inner{max-width:430px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.topbar-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.cm-badge{position:relative;width:38px;height:38px;flex-shrink:0;display:grid;place-items:center;border-radius:13px;border:1px solid;}
+.cm-dot{position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;border:2.5px solid;}
+.topbar-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1d9bf0,#7856ff);}
+.cm-eyebrow{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cm-title{font-size:17px;font-weight:700;letter-spacing:-.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.status-chip{border-radius:99px;border:1px solid;padding:4px 10px;font-size:11px;font-weight:600;white-space:nowrap;}
+.icon-btn{width:38px;height:38px;display:grid;place-items:center;border-radius:13px;border:1px solid;flex-shrink:0;transition:transform .12s;}
+.icon-btn:active{transform:scale(.88);}
 
-/* ── TOPBAR ── */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  border-bottom: 1px solid;
-  padding: 10px 16px;
-  padding-top: calc(10px + env(safe-area-inset-top, 0px));
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-}
-.topbar-inner {
-  max-width: 430px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.topbar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.cm-badge {
-  position: relative;
-  width: 38px; height: 38px;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 13px;
-  border: 1px solid;
-}
-.cm-dot {
-  position: absolute;
-  top: -3px; right: -3px;
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  border: 2.5px solid;
-}
-.cm-eyebrow { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; }
-.cm-title { font-size: 17px; font-weight: 700; letter-spacing: -0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.status-chip { border-radius: 99px; border: 1px solid; padding: 4px 10px; font-size: 11px; font-weight: 600; }
-.icon-btn { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; border: 1px solid; flex-shrink: 0; }
+/* Card */
+.card{border-radius:22px;border:1px solid;overflow:hidden;}
 
-/* ── CARDS ── */
-.card {
-  border-radius: 22px;
-  border: 1px solid;
-  overflow: hidden;
-}
-.card-p { padding: 16px; }
+/* Progress */
+.prog{height:6px;border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;transition:width .5s;}
 
-/* ── PROGRESS ── */
-.prog { height: 6px; border-radius: 99px; overflow: hidden; }
-.prog-fill { height: 100%; border-radius: 99px; transition: width 0.5s; }
+/* Buttons */
+.btn-full{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:22px;padding:15px 20px;font-size:15px;font-weight:600;color:#fff;transition:transform .12s cubic-bezier(.34,1.56,.64,1),filter .12s;}
+.btn-full:active{transform:scale(.96);filter:brightness(.88);}
+.btn-outline{border-radius:22px;border:1px solid;padding:15px 16px;font-size:14px;font-weight:600;transition:transform .12s;}
+.btn-outline:active{transform:scale(.96);}
+.btn-pill{border-radius:99px;padding:6px 13px;font-size:12px;font-weight:700;transition:transform .12s;}
+.btn-pill:active{transform:scale(.94);}
+.btn-row{border-radius:14px;padding:13px;font-size:14px;font-weight:700;transition:transform .12s;}
+.btn-row:active{transform:scale(.97);}
 
-/* ── BUTTONS ── */
-.btn-full {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: 22px;
-  padding: 15px 20px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.12s;
-}
-.btn-full:active { transform: scale(0.96); filter: brightness(0.88); }
-.btn-outline {
-  border-radius: 22px;
-  border: 1px solid;
-  padding: 15px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  transition: transform 0.12s;
-}
-.btn-outline:active { transform: scale(0.96); }
-.btn-pill { border-radius: 99px; padding: 6px 13px; font-size: 12px; font-weight: 700; }
+/* Ring */
+.ring-wrap{position:relative;flex-shrink:0;}
+.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;}
 
-/* ── RING ── */
-.ring-wrap { position: relative; flex-shrink: 0; }
-.ring-inner {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center;
-  padding: 18px; /* keeps text away from the stroke edge */
-}
+/* Focus ring */
+.focus-ring{position:relative;width:230px;height:230px;margin:18px auto;display:grid;place-items:center;}
+.focus-glow{position:absolute;inset:28px;border-radius:50%;filter:blur(32px);}
+.focus-num{font-size:52px;font-weight:600;letter-spacing:-.09em;line-height:1;font-variant-numeric:tabular-nums;}
 
-/* ── FOCUS RING ── */
-.focus-ring {
-  position: relative;
-  width: 240px; height: 240px;
-  margin: 20px auto;
-  display: grid;
-  place-items: center;
-}
-.focus-glow {
-  position: absolute;
-  inset: 32px;
-  border-radius: 50%;
-  filter: blur(32px);
-}
-.focus-num {
-  font-size: 54px;
-  font-weight: 600;
-  letter-spacing: -0.09em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
+/* Toggle */
+.tog{width:46px;height:27px;border-radius:99px;position:relative;flex-shrink:0;transition:background .2s;}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:transform .22s cubic-bezier(.34,1.56,.64,1);box-shadow:0 1px 4px rgba(0,0,0,.25);}
+.tog.on::after{transform:translateX(19px);}
+.tog.off{background:#71767b!important;}
 
-/* ── PRESET BTN ── */
-.preset {
-  width: 100%;
-  border-radius: 16px;
-  border: 1px solid;
-  padding: 14px 16px;
-  text-align: left;
-  transition: transform 0.12s;
-}
-.preset:active { transform: scale(0.98); }
+/* Preset */
+.preset{width:100%;border-radius:16px;border:1px solid;padding:14px 16px;text-align:left;transition:transform .12s,border-color .15s,background .15s;}
+.preset:active{transform:scale(.98);}
 
-/* ── TOGGLE ── */
-.tog {
-  width: 46px; height: 27px;
-  border-radius: 99px;
-  position: relative;
-  flex-shrink: 0;
-}
-.tog::after {
-  content: '';
-  position: absolute;
-  top: 3px; left: 3px;
-  width: 21px; height: 21px;
-  border-radius: 50%;
-  background: #fff;
-  transform: translateX(19px);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-}
+/* Tabs */
+.rtabs{display:grid;grid-template-columns:repeat(4,1fr);border-radius:14px;padding:4px;}
+.rtab{border-radius:10px;padding:8px 4px;font-size:12px;font-weight:500;transition:background .15s,color .15s;}
 
-/* ── RANGE TABS ── */
-.rtabs { display: grid; grid-template-columns: repeat(4, 1fr); border-radius: 14px; padding: 4px; }
-.rtab { border-radius: 10px; padding: 8px; font-size: 12px; font-weight: 500; transition: all 0.18s; }
+/* Theme switcher */
+.tsw{display:grid;grid-template-columns:repeat(3,1fr);border-radius:99px;padding:3px;}
+.tsw-btn{border-radius:99px;padding:8px;font-size:11px;font-weight:600;transition:background .15s,color .15s;}
 
-/* ── THEME SWITCHER ── */
-.tsw { display: grid; grid-template-columns: repeat(3, 1fr); border-radius: 99px; padding: 3px; }
-.tsw-btn { border-radius: 99px; padding: 8px; font-size: 11px; font-weight: 600; transition: all 0.2s; }
+/* Modal */
+.modal-bg{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0 12px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(0,0,0,0);pointer-events:none;transition:background .28s;}
+.modal-bg.open{background:rgba(0,0,0,.56);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);pointer-events:all;}
+.modal-sheet{width:100%;max-width:430px;border-radius:28px;border:1px solid;padding:20px;transform:translateY(110%);transition:transform .34s cubic-bezier(.32,.72,0,1);box-shadow:0 -8px 48px rgba(0,0,0,.4);}
+.modal-bg.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:36px;height:4px;border-radius:99px;margin:0 auto 16px;}
 
-/* ── MODAL ── */
-.modal-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0 12px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-  background: rgba(0,0,0,0);
-  pointer-events: none;
-  transition: background 0.28s;
-}
-.modal-bg.open {
-  background: rgba(0,0,0,0.56);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  pointer-events: all;
-}
-.modal-sheet {
-  width: 100%;
-  max-width: 430px;
-  border-radius: 28px;
-  border: 1px solid;
-  padding: 20px;
-  transform: translateY(110%);
-  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
-  box-shadow: 0 -8px 48px rgba(0,0,0,0.4);
-}
-.modal-bg.open .modal-sheet { transform: translateY(0); }
-.modal-handle { width: 36px; height: 4px; border-radius: 99px; margin: 0 auto 16px; }
+/* Install sheet */
+.inst-bg{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;padding:0 12px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(0,0,0,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .25s;}
+.inst-bg.open{opacity:1;pointer-events:all;}
+.inst-sheet{width:100%;max-width:430px;border-radius:28px;border:1px solid;padding:24px;transform:translateY(100%);transition:transform .34s cubic-bezier(.32,.72,0,1);}
+.inst-bg.open .inst-sheet{transform:translateY(0);}
 
-/* ── INSTALL SHEET ── */
-.inst-bg {
-  position: fixed; inset: 0; z-index: 60;
-  display: flex; align-items: flex-end; justify-content: center;
-  padding: 0 12px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-  background: rgba(0,0,0,0.7);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.25s;
-}
-.inst-bg.open { opacity: 1; pointer-events: all; }
-.inst-sheet {
-  width: 100%; max-width: 430px;
-  border-radius: 28px;
-  border: 1px solid;
-  padding: 24px;
-  transform: translateY(100%);
-  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
-}
-.inst-bg.open .inst-sheet { transform: translateY(0); }
+/* Notification panel */
+.notif-panel{position:fixed;inset:0;z-index:55;display:flex;flex-direction:column;padding-top:calc(env(safe-area-inset-top,0px) + 56px);background:rgba(0,0,0,0);pointer-events:none;transition:background .28s;}
+.notif-panel.open{background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:all;}
+.notif-inner{margin:0 12px;border-radius:24px;border:1px solid;padding:0;overflow:hidden;transform:translateY(-20px);opacity:0;transition:transform .28s cubic-bezier(.32,.72,0,1),opacity .28s;max-width:430px;align-self:center;width:calc(100% - 24px);}
+.notif-panel.open .notif-inner{transform:translateY(0);opacity:1;}
 
-/* ── ANIMATIONS ── */
-@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-.fu { animation: fadeUp 0.26s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.fu1 { animation-delay: 0.03s; }
-.fu2 { animation-delay: 0.07s; }
-.fu3 { animation-delay: 0.12s; }
-.fu4 { animation-delay: 0.17s; }
-.fu5 { animation-delay: 0.22s; }
-.fu6 { animation-delay: 0.27s; }
-/* suppress all animations when only theme changed */
-.no-anim, .no-anim * { animation: none !important; transition: color 0.15s, background 0.15s, border-color 0.15s !important; }
+/* Add limit modal */
+.add-limit-bg{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0 12px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(0,0,0,0);pointer-events:none;transition:background .28s;}
+.add-limit-bg.open{background:rgba(0,0,0,.56);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);pointer-events:all;}
+.add-limit-sheet{width:100%;max-width:430px;border-radius:28px;border:1px solid;padding:20px;transform:translateY(110%);transition:transform .34s cubic-bezier(.32,.72,0,1);}
+.add-limit-bg.open .add-limit-sheet{transform:translateY(0);}
 
-/* ── UTILS ── */
-.row { display: flex; align-items: center; }
-.col { display: flex; flex-direction: column; }
-.g2 { gap: 8px; }
-.g3 { gap: 12px; }
-.g4 { gap: 16px; }
-.mt2 { margin-top: 8px; }
-.mt3 { margin-top: 12px; }
-.mt4 { margin-top: 16px; }
-.mt5 { margin-top: 20px; }
-.sb { justify-content: space-between; }
-.tr { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mn0 { min-width: 0; }
-.f1 { flex: 1; }
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.fs { flex-shrink: 0; }
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.fu{animation:fadeUp .26s cubic-bezier(.4,0,.2,1) both;}
+.fu1{animation-delay:.03s;}.fu2{animation-delay:.07s;}.fu3{animation-delay:.12s;}
+.fu4{animation-delay:.17s;}.fu5{animation-delay:.22s;}.fu6{animation-delay:.27s;}
+.no-anim,.no-anim *{animation:none!important;transition:color .15s,background .15s,border-color .15s!important;}
+
+/* Utils */
+.mt3{margin-top:12px;}.mt4{margin-top:16px;}.mt5{margin-top:20px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row{display:flex;align-items:center;}
+.sb{justify-content:space-between;}
+
+/* Settings row press feedback */
+.settings-row{transition:opacity .1s;}
+.settings-row:active{opacity:.5;}
+
+/* Profile button press states */
+.prf-btn-sec { transition: transform .12s cubic-bezier(.34,1.56,.64,1), opacity .1s; }
+.prf-btn-sec:active { transform: scale(.95); opacity: .8; }
+.prf-btn-acc { transition: transform .12s cubic-bezier(.34,1.56,.64,1), filter .12s; }
+.prf-btn-acc:active { transform: scale(.95); filter: brightness(.88); }
+.prf-txt-btn { transition: opacity .1s; }
+.prf-txt-btn:active { opacity: .5; }
+.prf-row-btn { transition: background .12s; }
+.prf-row-btn:active { background: var(--surf2) !important; }
+.prf-install { transition: transform .12s cubic-bezier(.34,1.56,.64,1), filter .12s; }
+.prf-install:active { transform: scale(.97); filter: brightness(.88); }
+.prf-signout { transition: transform .12s cubic-bezier(.34,1.56,.64,1); }
+.prf-signout:active { transform: scale(.97); }
 </style>
 </head>
 <body>
 <div id="shell">
   <div id="scroller"><div id="page"></div></div>
   <nav id="nav"><div class="nav-inner" id="navrow"></div></nav>
-  <div class="modal-bg" id="mod-focus" onclick="if(event.target===this)closeModal('focus')">
-    <div class="modal-sheet" id="mod-focus-sheet"></div>
-  </div>
-  <div class="modal-bg" id="mod-insight" onclick="if(event.target===this)closeModal('insight')">
-    <div class="modal-sheet" id="mod-insight-sheet"></div>
-  </div>
-  <div class="inst-bg" id="inst-bg" onclick="if(event.target===this)closeInst()">
-    <div class="inst-sheet" id="inst-sheet"></div>
-  </div>
+  <!-- Modals inside shell so nothing leaks below nav -->
+  <div class="modal-bg" id="mod-focus" onclick="if(event.target===this)closeModal('focus')"><div class="modal-sheet" id="mod-focus-sheet"></div></div>
+  <div class="modal-bg" id="mod-insight" onclick="if(event.target===this)closeModal('insight')"><div class="modal-sheet" id="mod-insight-sheet"></div></div>
+  <div class="inst-bg" id="inst-bg" onclick="if(event.target===this)closeInst()"><div class="inst-sheet" id="inst-sheet"></div></div>
+  <div class="notif-panel" id="notif-panel" onclick="if(event.target===this)closeNotif()"><div class="notif-inner" id="notif-inner"></div></div>
+  <div class="add-limit-bg" id="add-limit-bg" onclick="if(event.target===this)closeAddLimit()"><div class="add-limit-sheet" id="add-limit-sheet"></div></div>
 </div>
 
 <script>
 "use strict";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
-
 const TH = {
-  dark:  { id:"dark",  label:"Dark",  bg:"#000000", page:"#000000", surf:"#101214", surf2:"#16181c", bdr:"#2f3336", line:"#202327", txt:"#e7e9ea", mut:"#71767b", acc:"#1d9bf0" },
-  dim:   { id:"dim",   label:"Dim",   bg:"#15202b", page:"#15202b", surf:"#1b2733", surf2:"#22303c", bdr:"#314253", line:"#314253", txt:"#f7f9f9", mut:"#8b98a5", acc:"#1d9bf0" },
-  light: { id:"light", label:"Light", bg:"#f7f9fb", page:"#ffffff", surf:"#ffffff", surf2:"#eff3f4", bdr:"#cfd9de", line:"#eff3f4", txt:"#0f1419", mut:"#536471", acc:"#1d9bf0" }
+  dark:  {id:"dark", label:"Dark", bg:"#000000",page:"#000000",surf:"#101214",surf2:"#16181c",bdr:"#2f3336",line:"#202327",txt:"#e7e9ea",mut:"#71767b",acc:"#1d9bf0"},
+  dim:   {id:"dim",  label:"Dim",  bg:"#15202b",page:"#15202b",surf:"#1b2733",surf2:"#22303c",bdr:"#314253",line:"#314253",txt:"#f7f9f9",mut:"#8b98a5",acc:"#1d9bf0"},
+  light: {id:"light",label:"Light",bg:"#f7f9fb",page:"#ffffff",surf:"#ffffff",surf2:"#eff3f4",bdr:"#cfd9de",line:"#eff3f4",txt:"#0f1419",mut:"#536471",acc:"#1d9bf0"}
 };
+const TABS = [{id:"home",label:"Home"},{id:"insights",label:"Insights"},{id:"focus",label:"Focus"},{id:"limits",label:"Limits"},{id:"profile",label:"Profile"}];
 
-const TABS = [
-  { id:"home",     label:"Home" },
-  { id:"insights", label:"Insights" },
-  { id:"focus",    label:"Focus" },
-  { id:"limits",   label:"Limits" },
-  { id:"profile",  label:"Profile" }
+const APPS_DATA = [
+  {name:"Instagram",brand:"ig",daily:60, left:18,pct:70,blocked:true},
+  {name:"YouTube",  brand:"yt",daily:90, left:45,pct:50,blocked:true},
+  {name:"TikTok",   brand:"tt",daily:45, left:12,pct:74,blocked:true},
+  {name:"Discord",  brand:"dc",daily:60, left:28,pct:54,blocked:false},
+  {name:"X",        brand:"x", daily:30, left:8, pct:73,blocked:false}
 ];
 
-const APPS = [
-  { name:"Instagram", brand:"ig",      daily:"1h 00m", left:"18m left", pct:70 },
-  { name:"YouTube",   brand:"yt",      daily:"1h 30m", left:"45m left", pct:50 },
-  { name:"TikTok",    brand:"tt",      daily:"45m",    left:"12m left", pct:74 },
-  { name:"Discord",   brand:"dc",      daily:"1h 00m", left:"28m left", pct:54 },
-  { name:"X",         brand:"x",       daily:"30m",    left:"8m left",  pct:73 }
+const CATS=[
+  {name:"Social",       time:"10h 24m",pct:32,col:"#1d9bf0"},
+  {name:"Productivity", time:"7h 48m", pct:24,col:"#7856ff"},
+  {name:"Entertainment",time:"6h 20m", pct:20,col:"#f91880"},
+  {name:"Education",    time:"3h 42m", pct:12,col:"#00ba7c"},
+  {name:"Other",        time:"3h 00m", pct:11,col:"#71767b"}
 ];
-
-const CATS = [
-  { name:"Social",        time:"10h 24m", pct:32, col:"#1d9bf0" },
-  { name:"Productivity",  time:"7h 48m",  pct:24, col:"#7856ff" },
-  { name:"Entertainment", time:"6h 20m",  pct:20, col:"#f91880" },
-  { name:"Education",     time:"3h 42m",  pct:12, col:"#00ba7c" },
-  { name:"Other",         time:"3h 00m",  pct:11, col:"#71767b" }
+const GOALS=[
+  {label:"Screen Time",        val:"32h / 40h",  pct:80,col:"#1d9bf0"},
+  {label:"Focus Sessions",     val:"12 / 20",    pct:60,col:"#7856ff"},
+  {label:"Bedtime Consistency",val:"5 / 7 nights",pct:72,col:"#00ba7c"}
 ];
-
-const GOALS = [
-  { label:"Screen Time",         val:"32h / 40h",    pct:80, col:"#1d9bf0" },
-  { label:"Focus Sessions",      val:"12 / 20",      pct:60, col:"#7856ff" },
-  { label:"Bedtime Consistency", val:"5 / 7 nights", pct:72, col:"#00ba7c" }
-];
-
-const ITOTALS = {
-  Day:   { time:"4h 37m",   chg:"Down 18% vs yesterday" },
-  Week:  { time:"32h 14m",  chg:"Down 12% vs last week" },
-  Month: { time:"118h 20m", chg:"Down 9% vs last month" },
-  Year:  { time:"1,284h",   chg:"Down 6% vs last year"  }
+const ITOTALS={
+  Day:  {time:"4h 37m",  chg:"Down 18% vs yesterday"},
+  Week: {time:"32h 14m", chg:"Down 12% vs last week"},
+  Month:{time:"118h 20m",chg:"Down 9% vs last month"},
+  Year: {time:"1,284h",  chg:"Down 6% vs last year"}
 };
-
-const SETTINGS = ["Account","Privacy","Notifications","Data & Sync","Appearance","About ClearMind"];
+const SETTINGS=["Account","Privacy","Notifications","Data & Sync","Appearance","About ClearMind"];
+const NOTIFS=[
+  {icon:"⏰",title:"Daily limit reached",body:"You've hit your Instagram limit for today.",time:"2m ago",unread:true},
+  {icon:"🎯",title:"Focus goal achieved!",body:"You completed 3 focus sessions today.",time:"1h ago",unread:true},
+  {icon:"🌙",title:"Bedtime mode starting",body:"Bedtime mode activates in 30 minutes.",time:"3h ago",unread:false},
+  {icon:"📊",title:"Weekly report ready",body:"Your screen time dropped 12% this week.",time:"Yesterday",unread:false},
+];
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
-
 const S = {
-  tab: "home",
-  theme: "dark",
-  deferred: null,
-  installed: false,
-  // focus
-  fsec: 45 * 60,
-  frun: false,
-  fpreset: "Deep Work",
-  fmodal: false,
-  ftimer: null,
+  tab:"home", theme:"dark",
+  deferred:null, installed:false,
+  // focus — never triggers full page re-render while running
+  fsec:45*60, frun:false, fpreset:"Deep Work", fmodal:false, ftimer:null,
+  // focus rules toggles
+  frules:{social:true,notifs:true,save:true},
+  // focus blocked apps (indices into APPS_DATA)
+  fblocked:[0,1,2,3,4],
   // insights
-  irange: "Week",
-  imodal: false,
+  irange:"Week", imodal:false,
+  // notifications
+  notifOpen:false,
+  // limits
+  appLimits:[...APPS_DATA], // mutable copy
+  addLimitOpen:false,
+  addLimitName:"", addLimitMins:60,
+  // profile
+  profileEditGoals:false,
 };
 
-let raf = null;
-function upd(patch) {
-  Object.assign(S, patch);
-  if (raf) return;
-  raf = requestAnimationFrame(() => { raf = null; draw(); });
+let raf=null;
+function upd(patch){
+  const prevTab=S.tab, prevTheme=S.theme;
+  Object.assign(S,patch);
+  if(raf) return;
+  raf=requestAnimationFrame(()=>{
+    raf=null;
+    const col=TH[S.theme]||TH.dark;
+    applyTheme(col);
+    drawNav(col);
+    const tabChanged=S.tab!==prevTab;
+    const themeChanged=S.theme!==prevTheme;
+    // Skip full page re-render when only focus sub-state changed on focus tab
+    if(!tabChanged && !themeChanged && S.tab==="focus") {
+      drawModals(col); return;
+    }
+    renderPage(col, tabChanged, themeChanged);
+    drawModals(col);
+  });
 }
 
-// ─── THEME VARS ──────────────────────────────────────────────────────────────
-
-function applyTheme(t) {
-  const ds = document.documentElement.style;
-  ds.setProperty('--bg',   t.bg);
-  ds.setProperty('--page', t.page);
-  ds.setProperty('--surf', t.surf);
-  ds.setProperty('--surf2',t.surf2);
-  ds.setProperty('--bdr',  t.bdr);
-  ds.setProperty('--line', t.line);
-  ds.setProperty('--txt',  t.txt);
-  ds.setProperty('--mut',  t.mut);
-  ds.setProperty('--acc',  t.acc);
-  document.getElementById('tc').content = t.bg;
-  document.body.style.background = t.bg;
-  document.getElementById('shell').style.background = t.bg;
-  document.getElementById('scroller').style.background = t.page;
+// ─── THEME ───────────────────────────────────────────────────────────────────
+function applyTheme(c){
+  const ds=document.documentElement.style;
+  ['bg','page','surf','surf2','bdr','line','txt','mut','acc'].forEach(k=>ds.setProperty('--'+k,c[k]));
+  document.getElementById('tc').content=c.bg;
+  document.body.style.background=c.bg;
+  const sh=document.getElementById('shell'); sh.style.background=c.bg;
+  document.getElementById('scroller').style.background=c.page;
+  document.getElementById('nav').style.background=c.bg;
 }
 
 // ─── ICONS ───────────────────────────────────────────────────────────────────
-
-const IP = {
-  home:     `<path d="M5 14.4 16 5.5l11 8.9v11.1a1.8 1.8 0 0 1-1.8 1.8h-5.1v-6.6a4.1 4.1 0 0 0-8.2 0v6.6H6.8A1.8 1.8 0 0 1 5 25.5V14.4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
-  insights: `<path d="M7 25V14M16 25V7M25 25v-8" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
-  focus:    `<circle cx="16" cy="16" r="9" stroke="currentColor" stroke-width="2.1" fill="none"/><circle cx="16" cy="16" r="3" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M16 3v4M16 25v4M3 16h4M25 16h4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
-  limits:   `<path d="M16 4 7 7.6v6.8c0 6 3.8 11.2 9 13.6 5.2-2.4 9-7.6 9-13.6V7.6L16 4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="m12.5 16 2.4 2.4 5-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
-  profile:  `<circle cx="16" cy="9.5" r="4.2" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M7 26c.72-5.1 4.05-8.1 9-8.1s8.28 3 9 8.1H7Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
-  bell:     `<path d="M16 28c1.5 0 2.7-.9 3.2-2.2h-6.4A3.4 3.4 0 0 0 16 28Z" fill="currentColor"/><path d="M7.8 22.9h16.4c.9 0 1.5-1 1-1.8l-1.4-2.2a5.4 5.4 0 0 1-.8-2.9v-3.3C23 8.1 19.9 4.8 16 4.8s-7 3.3-7 7.9V16c0 1-.3 2-.8 2.9l-1.4 2.2c-.5.8.1 1.8 1 1.8Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
-  clock:    `<circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M16 9v8l5 3" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
-  plus:     `<path d="M16 7v18M7 16h18" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
-  play:     `<path d="M11 8v16l13-8-13-8Z" fill="currentColor"/>`,
-  pause:    `<rect x="9" y="7" width="4" height="18" rx="1" fill="currentColor"/><rect x="19" y="7" width="4" height="18" rx="1" fill="currentColor"/>`,
-  check:    `<path d="m8 16 5 5L24 10" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
-  settings: `<circle cx="16" cy="16" r="3" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M16 4v4M16 24v4M6.2 10.2l3.4 2M22.4 19.8l3.4 2M6.2 21.8l3.4-2M22.4 12.2l3.4-2" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
-  calendar: `<rect x="6" y="8" width="20" height="18" rx="3" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M10 5v5M22 5v5M6 13h20" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
-  star:     `<path d="m16 4 3.6 7.3 8.1 1.2-5.85 5.7 1.38 8.05L16 22.45 8.77 26.25l1.38-8.05-5.85-5.7 8.1-1.2L16 4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
-  chevron:  `<path d="M13 8l6 8-6 8" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
-  shield:   `<path d="M16 4 7 7.6v6.8c0 6 3.8 11.2 9 13.6 5.2-2.4 9-7.6 9-13.6V7.6L16 4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
-  bolt:     `<path d="M17 3 7 18h8l-1 11 11-17h-8V3Z" fill="currentColor"/>`
+const IP={
+  home:    `<path d="M5 14.4 16 5.5l11 8.9v11.1a1.8 1.8 0 0 1-1.8 1.8h-5.1v-6.6a4.1 4.1 0 0 0-8.2 0v6.6H6.8A1.8 1.8 0 0 1 5 25.5V14.4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  insights:`<path d="M7 25V14M16 25V7M25 25v-8" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  focus:   `<circle cx="16" cy="16" r="9" stroke="currentColor" stroke-width="2.1" fill="none"/><circle cx="16" cy="16" r="3" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M16 3v4M16 25v4M3 16h4M25 16h4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  limits:  `<path d="M16 4 7 7.6v6.8c0 6 3.8 11.2 9 13.6 5.2-2.4 9-7.6 9-13.6V7.6L16 4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="m12.5 16 2.4 2.4 5-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  profile: `<circle cx="16" cy="9.5" r="4.2" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M7 26c.72-5.1 4.05-8.1 9-8.1s8.28 3 9 8.1H7Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" fill="none"/>`,
+  bell:    `<path d="M16 28c1.5 0 2.7-.9 3.2-2.2h-6.4A3.4 3.4 0 0 0 16 28Z" fill="currentColor"/><path d="M7.8 22.9h16.4c.9 0 1.5-1 1-1.8l-1.4-2.2a5.4 5.4 0 0 1-.8-2.9v-3.3C23 8.1 19.9 4.8 16 4.8s-7 3.3-7 7.9V16c0 1-.3 2-.8 2.9l-1.4 2.2c-.5.8.1 1.8 1 1.8Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" fill="none"/>`,
+  clock:   `<circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M16 9v8l5 3" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  plus:    `<path d="M16 7v18M7 16h18" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  play:    `<path d="M11 8v16l13-8-13-8Z" fill="currentColor"/>`,
+  pause:   `<rect x="9" y="7" width="4" height="18" rx="1" fill="currentColor"/><rect x="19" y="7" width="4" height="18" rx="1" fill="currentColor"/>`,
+  check:   `<path d="m8 16 5 5L24 10" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  settings:`<circle cx="16" cy="16" r="3" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M16 4v4M16 24v4M6.2 10.2l3.4 2M22.4 19.8l3.4 2M6.2 21.8l3.4-2M22.4 12.2l3.4-2" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  calendar:`<rect x="6" y="8" width="20" height="18" rx="3" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M10 5v5M22 5v5M6 13h20" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  star:    `<path d="m16 4 3.6 7.3 8.1 1.2-5.85 5.7 1.38 8.05L16 22.45 8.77 26.25l1.38-8.05-5.85-5.7 8.1-1.2L16 4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  chevron: `<path d="M13 8l6 8-6 8" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  shield:  `<path d="M16 4 7 7.6v6.8c0 6 3.8 11.2 9 13.6 5.2-2.4 9-7.6 9-13.6V7.6L16 4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" fill="none"/>`,
+  trash:   `<path d="M7 10h18M17 6h-4a1 1 0 0 0-1 1v1h6V7a1 1 0 0 0-1-1ZM11 14v7M16 14v7M9 10l1 14h12l1-14" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  edit:    `<path d="M22 4.5a2.12 2.12 0 0 1 3 3L13 20l-4 1 1-4 12-12.5Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`
 };
+function ic(name,size=20){return `<svg viewBox="0 0 32 32" width="${size}" height="${size}" fill="none" aria-hidden="true">${IP[name]||""}</svg>`;}
 
-function ic(name, size = 20) {
-  return `<svg viewBox="0 0 32 32" width="${size}" height="${size}" fill="none" aria-hidden="true">${IP[name] || ""}</svg>`;
+// ─── BRAND SVGS ──────────────────────────────────────────────────────────────
+function brandSVG(brand,s){
+  if(brand==="ig") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><defs><radialGradient id="ig${s}" cx="30%" cy="107%" r="120%"><stop offset="0" stop-color="#fdf497"/><stop offset=".38" stop-color="#fd5949"/><stop offset=".62" stop-color="#d6249f"/><stop offset="1" stop-color="#285AEB"/></radialGradient></defs><rect x="3" y="3" width="42" height="42" rx="12" fill="url(#ig${s})"/><rect x="13" y="13" width="22" height="22" rx="7" fill="none" stroke="white" stroke-width="3.2"/><circle cx="24" cy="24" r="6" fill="none" stroke="white" stroke-width="3.2"/><circle cx="32" cy="16" r="2.2" fill="white"/></svg>`;
+  if(brand==="yt") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect x="3" y="9" width="42" height="30" rx="8" fill="#FF0000"/><path d="M20 17.5v13L32 24l-12-6.5Z" fill="white"/></svg>`;
+  if(brand==="tt") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#050505"/><path d="M29 10c1.2 4.1 3.9 6.7 8 7.2v6.1c-3-.1-5.6-.9-8-2.6v10.4c0 6-4.3 9.9-10.2 9.9-5.2 0-9.3-3.5-9.3-8.7 0-5.5 4.5-9.1 10.5-8.7v6.2c-2.7-.4-4.3.7-4.3 2.5 0 1.6 1.3 2.7 3.1 2.7 2.2 0 3.7-1.3 3.7-4.1V10H29Z" fill="#25F4EE"/><path d="M27 10v21c0 6-4.3 9.9-10.2 9.9-5.2 0-9.3-3.5-9.3-8.7 0-5.5 4.5-9.1 10.5-8.7v6.2c-2.7-.4-4.3.7-4.3 2.5 0 1.6 1.3 2.7 3.1 2.7 2.2 0 3.7-1.3 3.7-4.1V10H27Z" fill="white"/></svg>`;
+  if(brand==="dc") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#5865F2"/><path d="M16 17.2c5-2.2 11-2.2 16 0 2.3 3.3 3.4 7.1 3 11.4-3.1 2.3-6 3.6-8.7 4l-1.2-2.1c1.3-.4 2.5-1 3.6-1.7-3.1 1.3-6.3 1.3-9.5 0 1.1.7 2.3 1.3 3.6 1.7l-1.2 2.1c-2.7-.4-5.6-1.7-8.7-4-.3-4.3.8-8.1 3.1-11.4Z" fill="white"/><circle cx="20" cy="24" r="2" fill="#5865F2"/><circle cx="28" cy="24" r="2" fill="#5865F2"/></svg>`;
+  if(brand==="x")  return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#050505"/><path d="M29.1 21.3 40.2 8h-5.1l-8.3 10-6.7-10H8l11.7 17.3L8 39.5h5.1l8.9-10.8 7.2 10.8h12.1L29.1 21.3Zm-3.2 3.9-2.1-3L15 11.8h2.6l7.1 10.1 2.1 3 9.3 13h-2.6l-7.6-12.7Z" fill="white"/></svg>`;
+  // generic placeholder
+  return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#1d9bf0"/><text x="24" y="32" text-anchor="middle" font-size="22" font-weight="800" fill="white">${brand.slice(0,2).toUpperCase()}</text></svg>`;
+}
+function appBadge(app,sz=40){
+  const is=Math.round(sz*.68), r=Math.round(sz*.275);
+  return `<div style="width:${sz}px;height:${sz}px;flex-shrink:0;display:grid;place-items:center;border-radius:${r}px;background:#fff;overflow:hidden">${brandSVG(app.brand,is)}</div>`;
 }
 
-// ─── APP BADGE SVGs ───────────────────────────────────────────────────────────
+// ─── COMPONENTS ──────────────────────────────────────────────────────────────
+function c(){return TH[S.theme]||TH.dark;}
+function card(inner){const t=c();return `<div class="card" style="border-color:${t.bdr};background:${t.surf}">${inner}</div>`;}
+function prog(val,col){const t=c();return `<div class="prog" style="background:${t.surf2}"><div class="prog-fill" style="width:${Math.min(100,Math.max(0,val))}%;background:${col||t.acc}"></div></div>`;}
 
-function brandSVG(brand, s) {
-  if (brand === "ig") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><defs><radialGradient id="ig" cx="30%" cy="107%" r="120%"><stop offset="0" stop-color="#fdf497"/><stop offset=".38" stop-color="#fd5949"/><stop offset=".62" stop-color="#d6249f"/><stop offset="1" stop-color="#285AEB"/></radialGradient></defs><rect x="3" y="3" width="42" height="42" rx="12" fill="url(#ig)"/><rect x="13" y="13" width="22" height="22" rx="7" fill="none" stroke="white" stroke-width="3.2"/><circle cx="24" cy="24" r="6" fill="none" stroke="white" stroke-width="3.2"/><circle cx="32" cy="16" r="2.2" fill="white"/></svg>`;
-  if (brand === "yt") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect x="3" y="9" width="42" height="30" rx="8" fill="#FF0000"/><path d="M20 17.5v13L32 24l-12-6.5Z" fill="white"/></svg>`;
-  if (brand === "tt") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#050505"/><path d="M29 10c1.2 4.1 3.9 6.7 8 7.2v6.1c-3-.1-5.6-.9-8-2.6v10.4c0 6-4.3 9.9-10.2 9.9-5.2 0-9.3-3.5-9.3-8.7 0-5.5 4.5-9.1 10.5-8.7v6.2c-2.7-.4-4.3.7-4.3 2.5 0 1.6 1.3 2.7 3.1 2.7 2.2 0 3.7-1.3 3.7-4.1V10H29Z" fill="#25F4EE"/><path d="M27 10v21c0 6-4.3 9.9-10.2 9.9-5.2 0-9.3-3.5-9.3-8.7 0-5.5 4.5-9.1 10.5-8.7v6.2c-2.7-.4-4.3.7-4.3 2.5 0 1.6 1.3 2.7 3.1 2.7 2.2 0 3.7-1.3 3.7-4.1V10H27Z" fill="white"/></svg>`;
-  if (brand === "dc") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#5865F2"/><path d="M16 17.2c5-2.2 11-2.2 16 0 2.3 3.3 3.4 7.1 3 11.4-3.1 2.3-6 3.6-8.7 4l-1.2-2.1c1.3-.4 2.5-1 3.6-1.7-3.1 1.3-6.3 1.3-9.5 0 1.1.7 2.3 1.3 3.6 1.7l-1.2 2.1c-2.7-.4-5.6-1.7-8.7-4-.3-4.3.8-8.1 3.1-11.4Z" fill="white"/><circle cx="20" cy="24" r="2" fill="#5865F2"/><circle cx="28" cy="24" r="2" fill="#5865F2"/></svg>`;
-  if (brand === "x")  return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#050505"/><path d="M29.1 21.3 40.2 8h-5.1l-8.3 10-6.7-10H8l11.7 17.3L8 39.5h5.1l8.9-10.8 7.2 10.8h12.1L29.1 21.3Zm-3.2 3.9-2.1-3L15 11.8h2.6l7.1 10.1 2.1 3 9.3 13h-2.6l-7.6-12.7Z" fill="white"/></svg>`;
-  return "";
-}
-
-function appBadge(app, sz = 40) {
-  const is = Math.round(sz * 0.68);
-  const r  = Math.round(sz * 0.275);
-  return `<div style="width:${sz}px;height:${sz}px;flex-shrink:0;display:grid;place-items:center;border-radius:${r}px;background:#fff;overflow:hidden">${brandSVG(app.brand, is)}</div>`;
-}
-
-// ─── HELPER COMPONENTS ───────────────────────────────────────────────────────
-
-function t() { return TH[S.theme] || TH.dark; }
-
-function card(inner, extra = "") {
-  const c = t();
-  return `<div class="card" style="border-color:${c.bdr};background:${c.surf}${extra ? ';' + extra : ''}">${inner}</div>`;
-}
-
-function prog(val, col) {
-  const c = t();
-  return `<div class="prog" style="background:${c.surf2}"><div class="prog-fill" style="width:${Math.min(100, Math.max(0, val))}%;background:${col || c.acc}"></div></div>`;
-}
-
-function ring(val, sz) {
-  const c = t();
-  // r=38 in a 100×100 viewBox → inner clear area = (38-6)px radius = plenty of room for text
-  const r = 38, sw = 7, circ = 2 * Math.PI * r;
-  const off = circ - (val / 100) * circ;
+function ring(val,sz){
+  const t=c(), r=38, sw=7, circ=2*Math.PI*r, off=circ-(val/100)*circ;
   return `<div class="ring-wrap" style="width:${sz}px;height:${sz}px">
     <svg viewBox="0 0 100 100" width="${sz}" height="${sz}" style="transform:rotate(-90deg)">
-      <circle cx="50" cy="50" r="${r}" stroke="${c.surf2}" stroke-width="${sw}" fill="none"/>
-      <circle cx="50" cy="50" r="${r}" stroke="${c.acc}" stroke-width="${sw}" fill="none" stroke-linecap="round" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
+      <circle cx="50" cy="50" r="${r}" stroke="${t.surf2}" stroke-width="${sw}" fill="none"/>
+      <circle cx="50" cy="50" r="${r}" stroke="${t.acc}" stroke-width="${sw}" fill="none" stroke-linecap="round" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
     </svg>
     <div class="ring-inner">
-      <div style="font-size:19px;font-weight:700;letter-spacing:-0.04em;color:${c.txt};line-height:1">${val}%</div>
-      <div style="font-size:9px;color:${c.mut};margin-top:3px;line-height:1.3">of daily<br>limit</div>
-      <div style="font-size:9px;color:${c.mut};margin-top:3px">8h 0m</div>
+      <div style="font-size:19px;font-weight:700;letter-spacing:-.04em;color:${t.txt};line-height:1">${val}%</div>
+      <div style="font-size:9px;color:${t.mut};margin-top:3px;line-height:1.4">of daily<br>limit</div>
+      <div style="font-size:9px;color:${t.mut};margin-top:2px">8h 0m</div>
     </div>
   </div>`;
 }
 
-function topbar(title, eyebrow, status, rightIcon) {
-  const c = t();
-  return `<header class="topbar" style="border-color:${c.line};background:${c.bg}dd">
+function tog(on,fn){const t=c();return `<button class="tog${on?' on':' off'}" onclick="${fn}" style="${on?'background:'+t.acc:''}"></button>`;}
+
+function topbar(title,eyebrow,status,rightIcon,rightFn){
+  const t=c();
+  const rightBtn = rightIcon==="bell"
+    ? `<button class="icon-btn" style="border-color:${t.bdr};background:${t.surf};color:${t.mut};position:relative" onclick="openNotif()">
+        ${ic("bell")}
+        <span style="position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;background:#f91880;border:2px solid ${t.surf}"></span>
+       </button>`
+    : rightIcon==="none" ? ""
+    : `<button class="icon-btn" style="border-color:${t.bdr};background:${t.surf};color:${t.mut}" onclick="${rightFn||''}">${ic(rightIcon)}</button>`;
+
+  return `<header class="topbar" style="border-color:${t.line};background:${t.bg}dd">
     <div class="topbar-inner">
       <div class="topbar-left">
-        <div class="cm-badge" style="border-color:${c.bdr};background:${c.surf}">
-          <div class="cm-dot" style="background:${c.acc};border-color:${c.bg}"></div>
-          <span style="font-size:11px;font-weight:900;letter-spacing:-0.04em;color:${c.txt}">CM</span>
+        <div class="cm-badge" style="border-color:${t.bdr};background:${t.surf}">
+          <div class="cm-dot" style="background:${t.acc};border-color:${t.bg}"></div>
+          <span style="font-size:11px;font-weight:900;letter-spacing:-.04em;color:${t.txt}">CM</span>
         </div>
         <div style="min-width:0">
-          <div class="cm-eyebrow" style="color:${c.mut}">${eyebrow}</div>
-          <div class="cm-title" style="color:${c.txt}">${title}</div>
+          <div class="cm-eyebrow" style="color:${t.mut}">${eyebrow}</div>
+          <div class="cm-title" style="color:${t.txt}">${title}</div>
         </div>
       </div>
       <div class="topbar-right">
-        <div class="status-chip" style="border-color:${c.bdr};background:${c.surf};color:${c.acc}">${status}</div>
-        <button class="icon-btn" style="border-color:${c.bdr};background:${c.surf};color:${c.mut}">${ic(rightIcon)}</button>
+        <div class="status-chip" style="border-color:${t.bdr};background:${t.surf};color:${t.acc}">${status}</div>
+        ${rightBtn}
       </div>
     </div>
   </header>`;
 }
 
-function metricTile(label, val, sub, iconName) {
-  const c = t();
-  return card(`<div style="padding:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-height:98px">
-    <div>
-      <div style="font-size:12px;font-weight:500;color:${c.txt}">${label}</div>
-      <div style="font-size:28px;font-weight:700;letter-spacing:-0.05em;color:${c.txt};margin-top:6px;line-height:1">${val}</div>
-      <div style="font-size:12px;font-weight:500;color:${c.acc};margin-top:6px">${sub}</div>
-    </div>
-    <div style="width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:${c.surf2};color:${c.acc};flex-shrink:0">${ic(iconName, 18)}</div>
-  </div>`);
-}
-
-// ─── LINE CHART ──────────────────────────────────────────────────────────────
-
-function lineChart() {
-  const c = t();
-  const pts = [42, 35, 58, 54, 76, 55, 61, 29];
-  const path = pts.map((p, i) => {
-    const x = (i / (pts.length - 1)) * 100;
-    const y = 44 - (p / 100) * 44;
-    return (i === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1);
-  }).join(" ");
-  const dots = pts.map((p, i) => {
-    const x = (i / (pts.length - 1)) * 100;
-    const y = 44 - (p / 100) * 44;
-    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.4" fill="${c.page}" stroke="${c.acc}" stroke-width="1.2"/>`;
-  }).join("");
-  return `<svg viewBox="0 0 100 44" style="width:100%;height:148px;overflow:visible" preserveAspectRatio="none">
-    <path d="${path}" fill="none" stroke="${c.acc}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-    ${dots}
-  </svg>`;
-}
-
-// ─── PAGES ───────────────────────────────────────────────────────────────────
-
-function pageHome() {
-  const c = t();
-  return topbar("Dashboard", "ClearMind", "On track", "bell") + `
+function pageProfile(){
+  const t=c();
+  const SETTING_ROWS=[
+    {label:"Account",        icon:"profile",  sub:"Manage your account details"},
+    {label:"Privacy",        icon:"shield",   sub:"Control your data & visibility"},
+    {label:"Notifications",  icon:"bell",     sub:"Alerts, sounds & badges"},
+    {label:"Data & Sync",    icon:"calendar", sub:"Backup and sync preferences"},
+    {label:"Appearance",     icon:"star",     sub:"Theme and display options"},
+    {label:"About ClearMind",icon:"focus",    sub:"Version 2.4.1 · Build 240"},
+  ];
+  return topbar("Profile","Account","Premium","bell")+`
   <div id="page-wrap">
-    <div class="fu fu1" style="margin-top:20px">
-      <div style="font-size:22px;font-weight:600;letter-spacing:-0.04em;color:${c.txt}">Good evening, Alex</div>
-      <div style="font-size:13px;color:${c.mut};margin-top:4px">Stay mindful. Live better.</div>
-    </div>
 
-    <div class="fu fu2 mt3">${card(`<div style="padding:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
-      <div>
-        <div style="font-size:13px;font-weight:500;color:${c.txt}">Total Screen Time</div>
-        <div style="font-size:40px;font-weight:700;letter-spacing:-0.06em;color:${c.txt};margin-top:10px;line-height:1">4h 37m</div>
-        <div style="font-size:12px;color:${c.mut};margin-top:10px">Today, May 20</div>
-        <div style="display:inline-block;border-radius:99px;padding:4px 10px;font-size:11px;font-weight:500;background:${c.surf2};color:${c.acc};margin-top:8px">↓ Down 18% vs yesterday</div>
-      </div>
-      ${ring(57, 110)}
-    </div>`)}</div>
-
-    <div class="fu fu3 mt3">${card(`<div style="padding:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-        <div>
-          <div style="font-size:13px;font-weight:500;color:${c.txt}">Daily Goal</div>
-          <div style="font-size:12px;color:${c.mut};margin-top:6px">You are on track. Keep it up.</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-size:24px;font-weight:700;letter-spacing:-0.04em;color:${c.txt};line-height:1">6h 0m</div>
-          <div style="font-size:11px;color:${c.mut};margin-top:3px">remaining</div>
+    <div class="fu fu1 mt3">${card(`<div style="padding:18px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,${t.acc},#7856ff);flex-shrink:0;display:grid;place-items:center;font-size:24px;font-weight:800;color:#fff">A</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:18px;font-weight:700;color:${t.txt}">Alex Morgan</div>
+          <div style="font-size:13px;color:${t.mut};margin-top:2px">alex.morgan@email.com</div>
+          <div style="display:inline-block;margin-top:6px;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:700;background:${t.surf2};color:${t.acc}">⭐ Premium</div>
         </div>
       </div>
-      <div style="margin-top:14px">${prog(58)}</div>
-    </div>`)}</div>
-
-    <div class="fu fu4 mt3 grid2">
-      ${metricTile("Pickups", "23", "↓ Down 15%", "home")}
-      ${metricTile("Unlocks", "45", "↓ Down 20%", "limits")}
-      ${metricTile("Focus Score", "82", "Great focus", "focus")}
-      ${metricTile("Sessions", "3", "↑ Up 1", "star")}
-    </div>
-
-    <div class="fu fu5 mt3">${card(`<div style="padding:15px;display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <div>
-        <div style="font-size:13px;font-weight:500;color:${c.txt}">Bedtime Mode</div>
-        <div style="font-size:20px;font-weight:700;color:${c.txt};margin-top:5px;line-height:1">On</div>
-        <div style="font-size:12px;color:${c.mut};margin-top:5px">11:00 PM – 7:00 AM</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="prf-btn-sec" onclick="openProfileSheet('edit')" style="border-radius:14px;padding:11px 8px;font-size:13px;font-weight:600;color:${t.txt};background:${t.surf2};border:1px solid ${t.bdr};display:flex;align-items:center;justify-content:center;gap:6px;width:100%">
+          ${ic("edit",15)} Edit Profile
+        </button>
+        <button class="prf-btn-acc" onclick="openProfileSheet('plan')" style="border-radius:14px;padding:11px 8px;font-size:13px;font-weight:600;color:#fff;background:${t.acc};display:flex;align-items:center;justify-content:center;gap:6px;width:100%">
+          ${ic("star",15)} Manage Plan
+        </button>
       </div>
-      <div style="width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:${c.surf2};color:${c.acc}">${ic("clock", 22)}</div>
     </div>`)}</div>
 
-    <div class="fu fu6 mt4">
-      <button class="btn-full" onclick="doNav('focus')" style="background:${c.acc}">
-        ${ic("focus", 18)} Start Focus Session
+    <div class="fu fu2 mt3">${card(`<div style="padding:18px">
+      <div style="font-weight:700;color:${t.txt};margin-bottom:12px">Appearance</div>
+      <div class="tsw" style="background:${t.surf2};border:1px solid ${t.bdr}">
+        ${Object.keys(TH).map(k=>{const sel=S.theme===k;return `<button class="tsw-btn" onclick="upd({theme:'${k}'})" style="background:${sel?t.acc:'transparent'};color:${sel?'#fff':t.mut}">${TH[k].label}</button>`;}).join("")}
+      </div>
+    </div>`)}</div>
+
+    <div class="fu fu3 mt3">${card(`<div style="padding:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-weight:700;color:${t.txt}">Weekly Goals</div>
+        <button class="prf-txt-btn" onclick="openProfileSheet('goals')" style="font-size:13px;font-weight:600;color:${t.acc};padding:4px 8px;border-radius:8px;">Edit</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        ${GOALS.map(g=>`<div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+            <span style="color:${t.txt}">${g.label}</span><span style="color:${t.mut}">${g.val}</span>
+          </div>
+          ${prog(g.pct,g.col)}
+        </div>`).join("")}
+      </div>
+    </div>`)}</div>
+
+    <div class="fu fu4 mt3">${card(`<div style="padding:8px 0">
+      ${SETTING_ROWS.map((row,i)=>`
+        <button class="prf-row-btn" onclick="openProfileSheet('${row.label}')" style="display:flex;align-items:center;gap:14px;width:100%;padding:14px 18px;${i?"border-top:1px solid "+t.line+";":""}">
+          <div style="width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:${t.surf2};color:${t.acc};flex-shrink:0">${ic(row.icon,18)}</div>
+          <div style="flex:1;text-align:left;min-width:0">
+            <div style="font-size:15px;font-weight:500;color:${t.txt}">${row.label}</div>
+            <div style="font-size:12px;color:${t.mut};margin-top:1px">${row.sub}</div>
+          </div>
+          <div style="color:${t.mut};flex-shrink:0">${ic("chevron",18)}</div>
+        </button>`).join("")}
+    </div>`)}</div>
+
+    <div class="fu fu5 mt4">
+      <button class="btn-full prf-install" onclick="doInstall()" style="background:${t.acc};display:flex;align-items:center;justify-content:center;gap:8px;">
+        ${ic("shield",18)} Add to Home Screen
+      </button>
+    </div>
+    <div style="margin-top:10px">
+      <button class="prf-signout" onclick="openProfileSheet('signout')" style="width:100%;border-radius:22px;padding:15px;font-size:15px;font-weight:600;color:#f91880;border:1px solid ${t.bdr};background:transparent;display:flex;align-items:center;justify-content:center;">
+        Sign Out
       </button>
     </div>
   </div>`;
 }
 
-function pageInsights() {
-  const c = t();
-  const active = ITOTALS[S.irange];
-  return topbar("Insights", "Weekly report", "Improving", "calendar") + `
-  <div id="page-wrap">
-    <div class="fu fu1 mt4">
-      <div class="rtabs" style="background:${c.surf2}">
-        ${["Day","Week","Month","Year"].map(r => `<button class="rtab" onclick="upd({irange:'${r}'})" style="background:${S.irange===r?c.surf:'transparent'};color:${S.irange===r?c.txt:c.mut}">${r}</button>`).join("")}
-      </div>
+function metricTile(label,val,sub,iconName){
+  const t=c();
+  return card(`<div style="padding:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-height:96px">
+    <div>
+      <div style="font-size:12px;font-weight:500;color:${t.txt}">${label}</div>
+      <div style="font-size:27px;font-weight:700;letter-spacing:-.05em;color:${t.txt};margin-top:6px;line-height:1">${val}</div>
+      <div style="font-size:12px;font-weight:500;color:${t.acc};margin-top:6px">${sub}</div>
     </div>
+    <div style="width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:${t.surf2};color:${t.acc};flex-shrink:0">${ic(iconName,18)}</div>
+  </div>`);
+}
 
-    <div class="fu fu2 mt3">${card(`<div style="padding:16px">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
-        <div>
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.09em;color:${c.mut}">Screen Time</div>
-          <div style="font-size:32px;font-weight:700;letter-spacing:-0.05em;color:${c.txt};margin-top:6px">${active.time}</div>
-          <div style="font-size:13px;color:${c.acc};margin-top:4px">↓ ${active.chg}</div>
-        </div>
-        <button class="btn-pill" onclick="upd({imodal:true})" style="background:${c.acc};color:#fff;flex-shrink:0">Details</button>
+function lineChart(){
+  const t=c(), pts=[42,35,58,54,76,55,61,29];
+  const path=pts.map((p,i)=>{const x=(i/(pts.length-1))*100,y=44-(p/100)*44;return (i?"L":"M")+x.toFixed(1)+","+y.toFixed(1);}).join(" ");
+  const dots=pts.map((p,i)=>{const x=(i/(pts.length-1))*100,y=44-(p/100)*44;return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.4" fill="${t.page}" stroke="${t.acc}" stroke-width="1.2"/>`;}).join("");
+  return `<svg viewBox="0 0 100 44" style="width:100%;height:140px;overflow:visible" preserveAspectRatio="none"><path d="${path}" fill="none" stroke="${t.acc}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg>`;
+}
+
+// ─── PAGES ───────────────────────────────────────────────────────────────────
+
+function pageHome(){
+  const t=c();
+  return topbar("Dashboard","ClearMind","On track","bell")+ `
+  <div id="page-wrap">
+    <div class="fu fu1" style="margin-top:18px">
+      <div style="font-size:22px;font-weight:600;letter-spacing:-.04em;color:${t.txt}">Good evening, Alex</div>
+      <div style="font-size:13px;color:${t.mut};margin-top:4px">Stay mindful. Live better.</div>
+    </div>
+    <div class="fu fu2 mt3">${card(`<div style="padding:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:${t.txt}">Total Screen Time</div>
+        <div style="font-size:40px;font-weight:700;letter-spacing:-.06em;color:${t.txt};margin-top:10px;line-height:1">4h 37m</div>
+        <div style="font-size:12px;color:${t.mut};margin-top:10px">Today, May 20</div>
+        <div style="display:inline-block;border-radius:99px;padding:4px 10px;font-size:11px;font-weight:500;background:${t.surf2};color:${t.acc};margin-top:8px">↓ Down 18% vs yesterday</div>
       </div>
-      <div style="margin-top:16px">${lineChart()}</div>
+      ${ring(57,108)}
     </div>`)}</div>
-
     <div class="fu fu3 mt3">${card(`<div style="padding:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="font-weight:700;color:${c.txt}">Time by Category</div>
-        <button onclick="upd({imodal:true})" style="font-size:13px;font-weight:600;color:${c.acc}">Show all</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:500;color:${t.txt}">Daily Goal</div>
+          <div style="font-size:12px;color:${t.mut};margin-top:5px">You are on track. Keep it up.</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:24px;font-weight:700;letter-spacing:-.04em;color:${t.txt};line-height:1">6h 0m</div>
+          <div style="font-size:11px;color:${t.mut};margin-top:3px">remaining</div>
+        </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:14px">
-        ${CATS.map(cat => `<div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
-            <span style="color:${c.txt}">${cat.name}</span>
-            <span style="color:${c.mut}">${cat.time} · ${cat.pct}%</span>
-          </div>
-          ${prog(cat.pct * 2.2, cat.col)}
-        </div>`).join("")}
-      </div>
+      <div style="margin-top:14px">${prog(58)}</div>
     </div>`)}</div>
-
     <div class="fu fu4 mt3 grid2">
-      ${card(`<div style="padding:14px"><div style="font-size:11px;color:${c.mut}">Daily avg</div><div style="font-size:22px;font-weight:700;color:${c.txt};margin-top:6px">4h 36m</div></div>`)}
-      ${card(`<div style="padding:14px"><div style="font-size:11px;color:${c.mut}">Best day</div><div style="font-size:22px;font-weight:700;color:${c.txt};margin-top:6px">Tue</div></div>`)}
+      ${metricTile("Pickups","23","↓ Down 15%","home")}
+      ${metricTile("Unlocks","45","↓ Down 20%","limits")}
+      ${metricTile("Focus Score","82","Great focus","focus")}
+      ${metricTile("Sessions","3","↑ Up 1","star")}
+    </div>
+    <div class="fu fu5 mt3">${card(`<div style="padding:15px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:${t.txt}">Bedtime Mode</div>
+        <div style="font-size:20px;font-weight:700;color:${t.txt};margin-top:5px;line-height:1">On</div>
+        <div style="font-size:12px;color:${t.mut};margin-top:5px">11:00 PM – 7:00 AM</div>
+      </div>
+      <div style="width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:${t.surf2};color:${t.acc}">${ic("clock",22)}</div>
+    </div>`)}</div>
+    <div class="fu fu6 mt4">
+      <button class="btn-full" onclick="doNav('focus')" style="background:${t.acc}">${ic("focus",18)} Start Focus Session</button>
     </div>
   </div>`;
 }
 
-function pageFocus() {
-  const c = t();
-  const total = fTotal();
-  const pct   = fPct();
-  const tstr  = fStr();
-  const dashOff = (578 - (pct / 100) * 578).toFixed(1);
-  const presets = [
-    { name:"Deep Work", sub:"45 min · strict",   mins:45 },
-    { name:"Study",     sub:"25 min · balanced",  mins:25 },
-    { name:"Reading",   sub:"30 min · calm",      mins:30 }
-  ];
-  return topbar("Focus Mode", "Deep work", S.frun ? "Running" : "Ready", "settings") + `
+function pageInsights(){
+  const t=c(), active=ITOTALS[S.irange];
+  return topbar("Insights","Weekly report","Improving","calendar")+`
+  <div id="page-wrap">
+    <div class="fu fu1 mt4">
+      <div class="rtabs" style="background:${t.surf2}">
+        ${["Day","Week","Month","Year"].map(r=>`<button class="rtab" onclick="upd({irange:'${r}'})" style="background:${S.irange===r?t.surf:'transparent'};color:${S.irange===r?t.txt:t.mut}">${r}</button>`).join("")}
+      </div>
+    </div>
+    <div class="fu fu2 mt3">${card(`<div style="padding:16px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:${t.mut}">Screen Time</div>
+          <div style="font-size:32px;font-weight:700;letter-spacing:-.05em;color:${t.txt};margin-top:6px">${active.time}</div>
+          <div style="font-size:13px;color:${t.acc};margin-top:4px">↓ ${active.chg}</div>
+        </div>
+        <button class="btn-pill" onclick="upd({imodal:true})" style="background:${t.acc};color:#fff;flex-shrink:0">Details</button>
+      </div>
+      <div style="margin-top:14px">${lineChart()}</div>
+    </div>`)}</div>
+    <div class="fu fu3 mt3">${card(`<div style="padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-weight:700;color:${t.txt}">Time by Category</div>
+        <button onclick="upd({imodal:true})" style="font-size:13px;font-weight:600;color:${t.acc}">Show all</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        ${CATS.map(cat=>`<div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+            <span style="color:${t.txt}">${cat.name}</span>
+            <span style="color:${t.mut}">${cat.time} · ${cat.pct}%</span>
+          </div>
+          ${prog(cat.pct*2.2,cat.col)}
+        </div>`).join("")}
+      </div>
+    </div>`)}</div>
+    <div class="fu fu4 mt3 grid2">
+      ${card(`<div style="padding:14px"><div style="font-size:11px;color:${t.mut}">Daily avg</div><div style="font-size:22px;font-weight:700;color:${t.txt};margin-top:6px">4h 36m</div></div>`)}
+      ${card(`<div style="padding:14px"><div style="font-size:11px;color:${t.mut}">Best day</div><div style="font-size:22px;font-weight:700;color:${t.txt};margin-top:6px">Tue</div></div>`)}
+    </div>
+  </div>`;
+}
+
+function pageFocus(){
+  const t=c(), total=fTotal(), pct=fPct(), tstr=fStr();
+  const dashOff=(578-(pct/100)*578).toFixed(1);
+  const presets=[{name:"Deep Work",sub:"45 min · strict",mins:45},{name:"Study",sub:"25 min · balanced",mins:25},{name:"Reading",sub:"30 min · calm",mins:30}];
+  const ruleLabels=["Block social apps","Silence notifications","Save session to report"];
+  const ruleKeys=["social","notifs","save"];
+  return topbar("Focus Mode","Deep work",S.frun?"Running":"Ready","settings")+`
   <div id="page-wrap">
     <div class="fu fu1 mt3">${card(`<div style="padding:16px;text-align:center">
-      <div style="display:inline-flex;align-items:center;gap:8px;border-radius:99px;border:1px solid ${c.bdr};background:${c.page};color:${c.acc};padding:5px 14px;font-size:12px;font-weight:600">
-        <span style="width:7px;height:7px;border-radius:50%;background:${S.frun?'#00ba7c':c.acc}"></span>
-        ${S.frun ? "Session running" : "Ready to lock in"}
+      <div style="display:inline-flex;align-items:center;gap:8px;border-radius:99px;border:1px solid ${t.bdr};background:${t.page};color:${t.acc};padding:5px 14px;font-size:12px;font-weight:600">
+        <span style="width:7px;height:7px;border-radius:50%;background:${S.frun?'#00ba7c':t.acc}"></span>
+        ${S.frun?"Session running":"Ready to lock in"}
       </div>
-
       <div class="focus-ring">
-        <div class="focus-glow" style="background:${c.surf2}"></div>
+        <div class="focus-glow" style="background:${t.surf2}"></div>
         <svg viewBox="0 0 220 220" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)">
-          <circle cx="110" cy="110" r="92" stroke="${c.surf2}" stroke-width="12" fill="none"/>
-          <circle id="f-ring" cx="110" cy="110" r="92" stroke="${c.acc}" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="578" stroke-dashoffset="${dashOff}" style="transition:stroke-dashoffset 0.6s"/>
-          <circle cx="110" cy="110" r="68" stroke="${c.line}" stroke-width="1" fill="none"/>
+          <circle cx="110" cy="110" r="92" stroke="${t.surf2}" stroke-width="12" fill="none"/>
+          <circle id="f-ring" cx="110" cy="110" r="92" stroke="${t.acc}" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="578" stroke-dashoffset="${dashOff}" style="transition:stroke-dashoffset .6s"/>
+          <circle cx="110" cy="110" r="68" stroke="${t.line}" stroke-width="1" fill="none"/>
         </svg>
         <div style="position:relative;z-index:1;text-align:center">
-          <div id="f-time" class="focus-num" style="color:${c.txt}">${tstr}</div>
-          <div style="font-size:14px;color:${c.mut};margin-top:6px">${S.fpreset}</div>
-          <div id="f-pct" style="font-size:12px;font-weight:500;color:${c.acc};margin-top:8px">${pct}% session left</div>
+          <div id="f-time" class="focus-num" style="color:${t.txt}">${tstr}</div>
+          <div class="focus-preset-label" style="font-size:14px;color:${t.mut};margin-top:6px">${S.fpreset}</div>
+          <div id="f-pct" style="font-size:12px;font-weight:500;color:${t.acc};margin-top:8px">${pct}% session left</div>
         </div>
       </div>
-
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
-        ${[["Left", `<span id="f-left">${Math.floor(S.fsec/60)}m</span>`], ["Blocked", "37"], ["Mode", "Strict"]].map(([l, v]) =>
-          `<div style="border-radius:14px;border:1px solid ${c.bdr};background:${c.page};padding:11px 6px;text-align:center">
-            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:${c.mut}">${l}</div>
-            <div style="font-size:16px;font-weight:700;color:${c.txt};margin-top:4px">${v}</div>
+        ${[["Left",`<span id="f-left">${Math.floor(S.fsec/60)}m</span>`],["Blocked",""+S.fblocked.length],["Mode","Strict"]].map(([l,v])=>`
+          <div style="border-radius:14px;border:1px solid ${t.bdr};background:${t.page};padding:11px 6px;text-align:center">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:${t.mut}">${l}</div>
+            <div style="font-size:16px;font-weight:700;color:${t.txt};margin-top:4px">${v}</div>
           </div>`).join("")}
       </div>
-
       <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px">
-        <button class="btn-full" id="f-btn" onclick="${S.frun ? "doPause()" : "doStart()"}" style="background:${c.acc}">
-          ${ic(S.frun ? "pause" : "play", 18)} ${S.frun ? "Pause Session" : "Start Focus Session"}
+        <button class="btn-full" id="f-btn" onclick="${S.frun?"doPause()":"doStart()"}" style="background:${t.acc}">
+          ${ic(S.frun?"pause":"play",18)} ${S.frun?"Pause Session":"Start Focus Session"}
         </button>
-        <button class="btn-outline" onclick="doReset()" style="border-color:${c.bdr};color:${c.txt};background:${c.surf2};padding:15px 16px">Reset</button>
+        <button class="btn-outline" onclick="doReset()" style="border-color:${t.bdr};color:${t.txt};background:${t.surf2};padding:15px 14px">Reset</button>
       </div>
     </div>`)}</div>
 
     <div class="fu fu2 mt3" style="display:flex;flex-direction:column;gap:8px">
-      ${presets.map(p => {
-        const sel = S.fpreset === p.name;
-        return `<button class="preset" onclick="doPreset('${p.name}',${p.mins})" style="border-color:${sel?c.acc:c.bdr};background:${sel?c.surf2:c.surf}">
+      ${presets.map(p=>{
+        const sel=S.fpreset===p.name;
+        return `<button class="preset" data-preset="${p.name}" onclick="doPreset('${p.name}',${p.mins})" style="border-color:${sel?t.acc:t.bdr};background:${sel?t.surf2:t.surf}">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
             <div>
-              <div style="font-size:15px;font-weight:700;color:${c.txt}">${p.name}</div>
-              <div style="font-size:13px;color:${c.mut};margin-top:3px">${p.sub}</div>
+              <div style="font-size:15px;font-weight:700;color:${t.txt}">${p.name}</div>
+              <div style="font-size:13px;color:${t.mut};margin-top:3px">${p.sub}</div>
             </div>
-            ${sel ? `<div style="width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:${c.acc};color:#fff;flex-shrink:0">${ic("check", 14)}</div>` : ""}
+            <div class="preset-check" style="display:${sel?'grid':'none'};width:26px;height:26px;place-items:center;border-radius:50%;background:${t.acc};color:#fff;flex-shrink:0">${ic("check",14)}</div>
           </div>
         </button>`;
       }).join("")}
@@ -742,414 +601,615 @@ function pageFocus() {
     <div class="fu fu3 mt3">${card(`<div style="padding:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div>
-          <div style="font-weight:700;color:${c.txt}">Blocked Apps</div>
-          <div style="font-size:12px;color:${c.mut};margin-top:2px">Hidden until session ends.</div>
+          <div style="font-weight:700;color:${t.txt}">Blocked Apps</div>
+          <div style="font-size:12px;color:${t.mut};margin-top:2px">Hidden during session.</div>
         </div>
-        <button class="btn-pill" onclick="upd({fmodal:true})" style="background:${c.surf2};color:${c.acc}">+33 more</button>
+        <button class="btn-pill" onclick="upd({fmodal:true})" style="background:${t.surf2};color:${t.acc}">Manage</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
-        ${APPS.map(a => `<div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-          ${appBadge(a, 40)}
-          <span style="font-size:10px;color:${c.mut};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;text-align:center">${a.name}</span>
-        </div>`).join("")}
+        ${S.fblocked.slice(0,5).map(i=>{const a=S.appLimits[i]||APPS_DATA[i];return`<div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          ${appBadge(a,40)}
+          <span style="font-size:10px;color:${t.mut};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;text-align:center">${a.name}</span>
+        </div>`;}).join("")}
       </div>
     </div>`)}</div>
 
     <div class="fu fu4 mt3">${card(`<div style="padding:16px">
-      <div style="font-weight:700;color:${c.txt};margin-bottom:10px">Focus Rules</div>
-      ${["Block social apps","Silence notifications","Save session to report"].map((item, i) =>
-        `<div style="display:flex;align-items:center;justify-content:space-between;${i ? "border-top:1px solid "+c.line+";" : ""}padding:12px 0">
-          <span style="font-size:14px;color:${c.txt}">${item}</span>
-          <div class="tog" style="background:${c.acc}"></div>
-        </div>`).join("")}
+      <div style="font-weight:700;color:${t.txt};margin-bottom:10px">Focus Rules</div>
+      ${ruleLabels.map((label,i)=>{
+        const key=ruleKeys[i], on=S.frules[key];
+        return `<div style="display:flex;align-items:center;justify-content:space-between;${i?"border-top:1px solid "+t.line+";":""}padding:12px 0">
+          <span style="font-size:14px;color:${t.txt}">${label}</span>
+          ${tog(on,`toggleRule('${key}')`)}
+        </div>`;
+      }).join("")}
     </div>`)}</div>
   </div>`;
 }
 
-function pageLimits() {
-  const c = t();
-  return topbar("App Limits", "Rules", "5 active", "plus") + `
+function pageLimits(){
+  const t=c();
+  return topbar("App Limits","Rules",S.appLimits.length+" active","plus","openAddLimit()")+`
   <div id="page-wrap">
     <div class="fu fu1 mt3">${card(`<div style="padding:16px;display:flex;flex-direction:column;gap:18px">
-      ${APPS.map(a => `<div style="display:flex;align-items:center;gap:12px">
-        ${appBadge(a, 44)}
+      ${S.appLimits.map((a,i)=>`<div style="display:flex;align-items:center;gap:12px">
+        ${appBadge(a,44)}
         <div style="min-width:0;flex:1">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <span style="font-weight:600;color:${c.txt};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.name}</span>
-            <span style="font-size:13px;font-weight:600;color:${c.acc};flex-shrink:0">${a.left}</span>
+            <span style="font-weight:600;color:${t.txt};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.name}</span>
+            <span style="font-size:13px;font-weight:600;color:${t.acc};flex-shrink:0">${a.left}m left</span>
           </div>
-          <div style="font-size:11px;color:${c.mut};margin-top:2px">Daily limit · ${a.daily}</div>
+          <div style="font-size:11px;color:${t.mut};margin-top:2px">Daily limit · ${a.daily}m</div>
           <div style="margin-top:8px">${prog(a.pct)}</div>
         </div>
-        <div style="color:${c.mut};font-size:20px;flex-shrink:0">›</div>
+        <button onclick="removeLimit(${i})" style="color:${t.mut};padding:4px;border-radius:8px;flex-shrink:0;transition:color .15s" ontouchstart="this.style.color='#f91880'" ontouchend="this.style.color='${t.mut}'">${ic("trash",18)}</button>
       </div>`).join("")}
+      ${S.appLimits.length===0?`<div style="text-align:center;padding:24px 0;color:${t.mut};font-size:14px">No limits set. Tap + to add one.</div>`:""}
     </div>`)}</div>
-
     <div class="fu fu2 mt3">
-      <button onclick="haptic()" style="display:flex;align-items:center;gap:14px;width:100%;border-radius:22px;border:1px solid ${c.bdr};background:${c.surf};padding:16px;transition:transform 0.12s" ontouchstart="this.style.transform='scale(.98)'" ontouchend="this.style.transform='scale(1)'">
-        <span style="width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:${c.surf2};color:${c.mut};flex-shrink:0">${ic("plus")}</span>
+      <button onclick="openAddLimit()" style="display:flex;align-items:center;gap:14px;width:100%;border-radius:22px;border:1px solid ${t.bdr};background:${t.surf};padding:16px;transition:transform .12s" ontouchstart="this.style.transform='scale(.98)'" ontouchend="this.style.transform='scale(1)'">
+        <span style="width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};flex-shrink:0">${ic("plus")}</span>
         <span>
-          <span style="display:block;font-weight:700;color:${c.txt}">Add Limit</span>
-          <span style="font-size:13px;color:${c.mut}">Set limit for a new app</span>
+          <span style="display:block;font-weight:700;color:${t.txt}">Add Limit</span>
+          <span style="font-size:13px;color:${t.mut}">Set limit for a new app</span>
         </span>
       </button>
     </div>
   </div>`;
 }
 
-function pageProfile() {
-  const c = t();
-  return topbar("Profile", "Account", "Premium", "settings") + `
+function pageProfile(){
+  const t=c();
+  return topbar("Alex Morgan","Profile","Premium","settings","",true)+`
   <div id="page-wrap">
     <div class="fu fu1 mt3">${card(`<div style="padding:18px;display:flex;align-items:center;gap:14px">
-      <div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,${c.acc},#7856ff);flex-shrink:0;display:grid;place-items:center;font-size:22px;font-weight:800;color:#fff">A</div>
-      <div>
-        <div style="font-size:18px;font-weight:700;color:${c.txt}">Alex Morgan</div>
-        <div style="font-size:13px;color:${c.mut}">alex.morgan@email.com</div>
-        <div style="display:inline-block;margin-top:7px;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:700;background:${c.surf2};color:${c.acc}">⭐ Premium</div>
+      <div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,${t.acc},#7856ff);flex-shrink:0;display:grid;place-items:center;font-size:22px;font-weight:800;color:#fff">A</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Alex Morgan</div>
+        <div style="font-size:13px;color:${t.mut}">alex.morgan@email.com</div>
+        <div style="display:inline-block;margin-top:7px;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:700;background:${t.surf2};color:${t.acc}">⭐ Premium</div>
       </div>
+      <button style="color:${t.acc};font-size:13px;font-weight:600;flex-shrink:0" onclick="alert('Edit profile coming soon')">Edit</button>
     </div>`)}</div>
 
     <div class="fu fu2 mt3">${card(`<div style="padding:18px">
-      <div style="font-weight:700;color:${c.txt};margin-bottom:12px">Appearance</div>
-      <div class="tsw" style="background:${c.surf2};border:1px solid ${c.bdr}">
-        ${Object.keys(TH).map(k => {
-          const sel = S.theme === k;
-          return `<button class="tsw-btn" onclick="upd({theme:'${k}'})" style="background:${sel?c.acc:'transparent'};color:${sel?'#fff':c.mut}">${TH[k].label}</button>`;
-        }).join("")}
+      <div style="font-weight:700;color:${t.txt};margin-bottom:12px">Appearance</div>
+      <div class="tsw" style="background:${t.surf2};border:1px solid ${t.bdr}">
+        ${Object.keys(TH).map(k=>{const sel=S.theme===k;return `<button class="tsw-btn" onclick="upd({theme:'${k}'})" style="background:${sel?t.acc:'transparent'};color:${sel?'#fff':t.mut}">${TH[k].label}</button>`;}).join("")}
       </div>
     </div>`)}</div>
 
     <div class="fu fu3 mt3">${card(`<div style="padding:18px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="font-weight:700;color:${c.txt}">Weekly Goals</div>
-        <button style="font-size:13px;font-weight:600;color:${c.acc}">Edit</button>
+        <div style="font-weight:700;color:${t.txt}">Weekly Goals</div>
+        <button style="font-size:13px;font-weight:600;color:${t.acc}" onclick="alert('Goal editing coming soon')">Edit</button>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px">
-        ${GOALS.map(g => `<div>
+        ${GOALS.map(g=>`<div>
           <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
-            <span style="color:${c.txt}">${g.label}</span>
-            <span style="color:${c.mut}">${g.val}</span>
+            <span style="color:${t.txt}">${g.label}</span><span style="color:${t.mut}">${g.val}</span>
           </div>
-          ${prog(g.pct, g.col)}
+          ${prog(g.pct,g.col)}
         </div>`).join("")}
       </div>
     </div>`)}</div>
 
     <div class="fu fu4 mt3">${card(`<div style="padding:18px">
-      <div style="font-weight:700;color:${c.txt};margin-bottom:4px">Settings</div>
-      ${SETTINGS.map((item, i) =>
-        `<button onclick="haptic()" style="display:flex;align-items:center;justify-content:space-between;width:100%;${i?"border-top:1px solid "+c.line+";":""}padding:14px 0;color:${c.txt}">
-          <span style="font-size:15px">${item}</span>
-          <span style="color:${c.mut}">${ic("chevron", 18)}</span>
-        </button>`).join("")}
+      <div style="font-weight:700;color:${t.txt};margin-bottom:4px">Settings</div>
+      ${SETTINGS.map((item,i)=>`<button class="settings-row" onclick="handleSetting('${item}')" style="display:flex;align-items:center;justify-content:space-between;width:100%;${i?"border-top:1px solid "+t.line+";":""}padding:14px 0;color:${t.txt}">
+        <span style="font-size:15px">${item}</span>
+        <span style="color:${t.mut}">${ic("chevron",18)}</span>
+      </button>`).join("")}
     </div>`)}</div>
 
     <div class="fu fu5 mt4">
-      <button class="btn-full" onclick="doInstall()" style="background:${c.acc}">
-        ${ic("shield", 18)} Add to Home Screen
-      </button>
+      <button class="btn-full" onclick="doInstall()" style="background:${t.acc}">${ic("shield",18)} Add to Home Screen</button>
     </div>
   </div>`;
 }
 
 // ─── FOCUS HELPERS ───────────────────────────────────────────────────────────
+function fTotal(){return S.fpreset==="Deep Work"?45*60:S.fpreset==="Study"?25*60:30*60;}
+function fPct(){return Math.max(0,Math.min(100,Math.round((S.fsec/fTotal())*100)));}
+function fStr(){const m=Math.floor(S.fsec/60),s=S.fsec%60;return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");}
 
-function fTotal() { return S.fpreset === "Deep Work" ? 45*60 : S.fpreset === "Study" ? 25*60 : 30*60; }
-function fPct()   { return Math.max(0, Math.min(100, Math.round((S.fsec / fTotal()) * 100))); }
-function fStr()   {
-  const m = Math.floor(S.fsec / 60), s = S.fsec % 60;
-  return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
-}
-
-function startTimer() {
+function startTimer(){
   stopTimer();
-  S.ftimer = setInterval(() => {
-    if (S.fsec <= 1) {
-      stopTimer();
-      haptic([10, 60, 20]);
-      upd({ fsec: 0, frun: false, fmodal: true });
+  S.ftimer=setInterval(()=>{
+    if(S.fsec<=1){
+      stopTimer();haptic([10,60,20]);
+      upd({fsec:0,frun:false,fmodal:true});
     } else {
       S.fsec--;
-      // DOM fast-path — no full re-render
-      const ts = fStr(), p = fPct();
-      const el = document.getElementById("f-time"); if (el) el.textContent = ts;
-      const mt = document.getElementById("m-time"); if (mt) mt.textContent = ts;
-      const fr = document.getElementById("f-ring"); if (fr) fr.setAttribute("stroke-dashoffset", (578 - (p/100)*578).toFixed(1));
-      const fp = document.getElementById("f-pct");  if (fp) fp.textContent = p + "% session left";
-      const fl = document.getElementById("f-left"); if (fl) fl.textContent = Math.floor(S.fsec/60) + "m";
+      // Fast DOM update — no re-render
+      const ts=fStr(),p=fPct();
+      const el=document.getElementById("f-time");if(el)el.textContent=ts;
+      const mt=document.getElementById("m-time");if(mt)mt.textContent=ts;
+      const fr=document.getElementById("f-ring");if(fr)fr.setAttribute("stroke-dashoffset",(578-(p/100)*578).toFixed(1));
+      const fp=document.getElementById("f-pct");if(fp)fp.textContent=p+"% session left";
+      const fl=document.getElementById("f-left");if(fl)fl.textContent=Math.floor(S.fsec/60)+"m";
     }
-  }, 1000);
+  },1000);
+}
+function stopTimer(){if(S.ftimer){clearInterval(S.ftimer);S.ftimer=null;}}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+function doNav(id){
+  if(id===S.tab){document.getElementById("scroller").scrollTo({top:0,behavior:"smooth"});return;}
+  haptic([4]);upd({tab:id});
 }
 
-function stopTimer() {
-  if (S.ftimer) { clearInterval(S.ftimer); S.ftimer = null; }
+function doPreset(name,mins){
+  stopTimer();haptic([4]);
+  S.fpreset=name; S.fsec=mins*60; S.frun=false;
+  const col=TH[S.theme]||TH.dark;
+  // Update preset buttons only — no page re-render
+  document.querySelectorAll('.preset').forEach(btn=>{
+    const isThis=btn.dataset.preset===name;
+    btn.style.borderColor=isThis?col.acc:col.bdr;
+    btn.style.background=isThis?col.surf2:col.surf;
+    const chk=btn.querySelector('.preset-check');
+    if(chk)chk.style.display=isThis?'grid':'none';
+  });
+  // Update ring + time
+  const ts=fStr(),p=100;
+  const el=document.getElementById("f-time");if(el)el.textContent=ts;
+  const mn=document.getElementById("f-time");if(mn)mn.textContent=ts;
+  const fr=document.getElementById("f-ring");if(fr)fr.setAttribute("stroke-dashoffset","0");
+  const fp=document.getElementById("f-pct");if(fp)fp.textContent="100% session left";
+  const fl=document.getElementById("f-left");if(fl)fl.textContent=mins+"m";
+  document.querySelectorAll('.focus-preset-label').forEach(l=>l.textContent=name);
+  // Reset main btn
+  const fb=document.getElementById("f-btn");
+  if(fb){fb.onclick=doStart;fb.innerHTML=`${ic("play",18)} Start Focus Session`;}
+  // Sync modal
+  drawModals(col);
+}
+
+function doStart(){
+  if(S.fsec===0)S.fsec=fTotal();
+  haptic([6,50,10]);S.frun=true;S.fmodal=true;
+  startTimer();
+  // Update button + status pill without re-render
+  const col=TH[S.theme]||TH.dark;
+  const fb=document.getElementById("f-btn");
+  if(fb){fb.onclick=doPause;fb.innerHTML=`${ic("pause",18)} Pause Session`;}
+  drawModals(col);
+}
+
+function doPause(){
+  stopTimer();haptic([4]);S.frun=false;
+  const col=TH[S.theme]||TH.dark;
+  const fb=document.getElementById("f-btn");
+  if(fb){fb.onclick=doStart;fb.innerHTML=`${ic("play",18)} Resume Session`;}
+  drawModals(col);
+}
+
+function doReset(){
+  stopTimer();haptic([4]);S.frun=false;S.fsec=fTotal();
+  const col=TH[S.theme]||TH.dark;
+  const ts=fStr();
+  const el=document.getElementById("f-time");if(el)el.textContent=ts;
+  const mt=document.getElementById("m-time");if(mt)mt.textContent=ts;
+  const fr=document.getElementById("f-ring");if(fr)fr.setAttribute("stroke-dashoffset","0");
+  const fp=document.getElementById("f-pct");if(fp)fp.textContent="100% session left";
+  const fl=document.getElementById("f-left");if(fl)fl.textContent=Math.floor(S.fsec/60)+"m";
+  const fb=document.getElementById("f-btn");
+  if(fb){fb.onclick=doStart;fb.innerHTML=`${ic("play",18)} Start Focus Session`;}
+  drawModals(col);
+}
+
+function toggleRule(key){
+  const r={...S.frules};r[key]=!r[key];
+  // Update only the toggle in DOM without re-rendering whole page
+  const btn=document.querySelector(`button[onclick="toggleRule('${key}')"]`);
+  if(btn){
+    const on=r[key];
+    btn.className="tog"+(on?" on":" off");
+    btn.style.background=on?c().acc:"";
+    btn.style.cssText+=on?`background:${c().acc};`:"background:#71767b;";
+    btn.classList.toggle("on",on);btn.classList.toggle("off",!on);
+  }
+  S.frules=r;
+}
+
+function removeLimit(i){haptic([6]);S.appLimits.splice(i,1);upd({});}
+
+function openAddLimit(){
+  haptic([4]);
+  const t=c();
+  const bg=document.getElementById("add-limit-bg");
+  const sh=document.getElementById("add-limit-sheet");
+  sh.style.borderColor=t.bdr;sh.style.background=t.surf;
+  sh.innerHTML=`
+    <div class="modal-handle" style="background:${t.bdr}"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:18px;font-weight:700;color:${t.txt}">Add App Limit</div>
+      <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:${t.mut};margin-bottom:6px">APP NAME</div>
+        <input id="al-name" type="text" placeholder="e.g. Twitter, Reddit…" maxlength="30"
+          style="width:100%;border-radius:14px;border:1px solid ${t.bdr};background:${t.page};color:${t.txt};padding:12px 14px;font-size:15px;"
+          oninput="S.addLimitName=this.value">
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:${t.mut};margin-bottom:6px">DAILY LIMIT (MINUTES)</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          ${[15,30,45,60,90,120].map(m=>`<button onclick="pickMins(${m})" id="mins-${m}" style="border-radius:12px;padding:10px;font-size:14px;font-weight:600;border:1px solid ${S.addLimitMins===m?t.acc:t.bdr};background:${S.addLimitMins===m?t.acc:'transparent'};color:${S.addLimitMins===m?'#fff':t.txt};grid-column:${m===120?'span 2':'span 1'};transition:all .15s">${m}m</button>`).join("")}
+        </div>
+      </div>
+    </div>
+    <button onclick="confirmAddLimit()" style="width:100%;margin-top:16px;border-radius:16px;padding:14px;font-size:15px;font-weight:700;color:#fff;background:${t.acc};transition:transform .12s" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">Add Limit</button>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>bg.classList.add("open")));
+}
+
+function pickMins(m){
+  S.addLimitMins=m;
+  document.querySelectorAll('[id^="mins-"]').forEach(btn=>{
+    const t=c();
+    const isThis=btn.id==="mins-"+m;
+    btn.style.borderColor=isThis?t.acc:t.bdr;
+    btn.style.background=isThis?t.acc:"transparent";
+    btn.style.color=isThis?"#fff":t.txt;
+  });
+}
+
+function confirmAddLimit(){
+  const name=(document.getElementById("al-name")||{}).value||S.addLimitName;
+  if(!name.trim()){document.getElementById("al-name").style.borderColor="#f91880";return;}
+  S.appLimits.push({name:name.trim(),brand:"x",daily:S.addLimitMins,left:S.addLimitMins,pct:0,blocked:false});
+  closeAddLimit();upd({});
+}
+
+function closeAddLimit(){document.getElementById("add-limit-bg").classList.remove("open");}
+
+function handleSetting(item){
+  haptic([4]);
+  openProfileSheet(item);
+}
+
+// Profile sheet — one bottom sheet used for all profile actions
+function openProfileSheet(which){
+  haptic([4]);
+  const t=c();
+  const bg=document.getElementById("add-limit-bg"); // reuse the existing sheet overlay
+  const sh=document.getElementById("add-limit-sheet");
+  sh.style.borderColor=t.bdr; sh.style.background=t.surf;
+
+  const sheets={
+    edit:`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Edit Profile</div>
+        <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:${t.mut};margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em">Display Name</div>
+          <input type="text" value="Alex Morgan" style="width:100%;border-radius:14px;border:1px solid ${t.bdr};background:${t.page};color:${t.txt};padding:12px 14px;font-size:15px">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:${t.mut};margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em">Email</div>
+          <input type="email" value="alex.morgan@email.com" style="width:100%;border-radius:14px;border:1px solid ${t.bdr};background:${t.page};color:${t.txt};padding:12px 14px;font-size:15px">
+        </div>
+      </div>
+      <button onclick="closeAddLimit()" style="width:100%;margin-top:16px;border-radius:16px;padding:14px;font-size:15px;font-weight:700;color:#fff;background:${t.acc}">Save Changes</button>`,
+
+    plan:`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Your Plan</div>
+        <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+      </div>
+      <div style="border-radius:18px;padding:20px;background:linear-gradient(135deg,${t.acc},#7856ff);margin-bottom:16px;text-align:center">
+        <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.8)">Current Plan</div>
+        <div style="font-size:28px;font-weight:800;color:#fff;margin-top:4px">⭐ Premium</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:6px">Renews Jun 15, 2026 · $4.99/mo</div>
+      </div>
+      ${["Unlimited app limits","Advanced focus modes","Detailed analytics & reports","Priority support","iCloud sync"].map(f=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid ${t.line}">
+        <span style="color:#00ba7c">${ic("check",18)}</span><span style="font-size:14px;color:${t.txt}">${f}</span>
+      </div>`).join("")}
+      <button onclick="closeAddLimit()" style="width:100%;margin-top:16px;border-radius:16px;padding:14px;font-size:15px;font-weight:700;color:${t.txt};background:${t.surf2};border:1px solid ${t.bdr}">Manage Subscription</button>`,
+
+    goals:`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Edit Goals</div>
+        <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+      </div>
+      ${[{label:"Daily Screen Time",val:"8",unit:"hrs"},{label:"Focus Sessions / week",val:"20",unit:"sessions"},{label:"Bedtime nights / week",val:"7",unit:"nights"}].map(g=>`<div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:${t.txt};font-weight:500">${g.label}</span><span style="color:${t.mut}">${g.val} ${g.unit}</span></div>
+        <input type="range" min="1" max="20" value="${g.val}" style="width:100%;accent-color:${t.acc}">
+      </div>`).join("")}
+      <button onclick="closeAddLimit()" style="width:100%;margin-top:8px;border-radius:16px;padding:14px;font-size:15px;font-weight:700;color:#fff;background:${t.acc}">Save Goals</button>`,
+
+    Account:`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Account</div>
+        <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+      </div>
+      ${[["Username","@alexmorgan"],["Member since","March 2024"],["Plan","⭐ Premium"],["Storage used","124 MB"]].map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-top:1px solid ${t.line}">
+        <span style="font-size:14px;color:${t.mut}">${k}</span><span style="font-size:14px;font-weight:600;color:${t.txt}">${v}</span>
+      </div>`).join("")}
+      <button onclick="closeAddLimit()" style="width:100%;margin-top:16px;border-radius:16px;padding:14px;font-size:15px;font-weight:700;color:#f91880;background:${t.surf2};border:1px solid ${t.bdr}">Delete Account</button>`,
+
+    Privacy:`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Privacy</div>
+        <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+      </div>
+      ${[["Share usage data","Help improve ClearMind",true],["Analytics","Anonymous crash reports",true],["Personalisation","Tailored tips & insights",false]].map(([label,sub,on])=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid ${t.line}">
+        <div><div style="font-size:14px;font-weight:500;color:${t.txt}">${label}</div><div style="font-size:12px;color:${t.mut};margin-top:2px">${sub}</div></div>
+        <div class="tog${on?' on':' off'}" style="${on?'background:'+t.acc:'background:#71767b'}"></div>
+      </div>`).join("")}`,
+
+    Notifications:`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Notifications</div>
+        <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+      </div>
+      ${[["App limit warnings","Alert when 80% of limit used",true],["Focus reminders","Daily check-in prompts",true],["Bedtime mode","30 min before start",true],["Weekly report","Every Monday morning",false]].map(([label,sub,on])=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid ${t.line}">
+        <div><div style="font-size:14px;font-weight:500;color:${t.txt}">${label}</div><div style="font-size:12px;color:${t.mut};margin-top:2px">${sub}</div></div>
+        <div class="tog${on?' on':' off'}" style="${on?'background:'+t.acc:'background:#71767b'}"></div>
+      </div>`).join("")}`,
+
+    "Data & Sync":`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Data & Sync</div>
+        <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+      </div>
+      ${[["iCloud Sync","Last synced 2 min ago",true],["Export data","Download your history",false]].map(([label,sub,on])=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid ${t.line}">
+        <div><div style="font-size:14px;font-weight:500;color:${t.txt}">${label}</div><div style="font-size:12px;color:${t.mut};margin-top:2px">${sub}</div></div>
+        <div class="tog${on?' on':' off'}" style="${on?'background:'+t.acc:'background:#71767b'}"></div>
+      </div>`).join("")}
+      <button onclick="closeAddLimit()" style="width:100%;margin-top:16px;border-radius:16px;padding:14px;font-size:15px;font-weight:700;color:${t.txt};background:${t.surf2};border:1px solid ${t.bdr}">Export My Data</button>`,
+
+    Appearance:`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Appearance</div>
+        <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:${t.mut};margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Theme</div>
+      <div class="tsw" style="background:${t.surf2};border:1px solid ${t.bdr}">
+        ${Object.keys(TH).map(k=>{const sel=S.theme===k;return `<button class="tsw-btn" onclick="upd({theme:'${k}'})" style="background:${sel?t.acc:'transparent'};color:${sel?'#fff':t.mut}">${TH[k].label}</button>`;}).join("")}
+      </div>`,
+
+    "About ClearMind":`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">About ClearMind</div>
+        <button onclick="closeAddLimit()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px">×</button>
+      </div>
+      <div style="text-align:center;padding:20px 0">
+        <div style="width:72px;height:72px;border-radius:20px;background:#000;display:grid;place-items:center;margin:0 auto 12px;border:1px solid ${t.bdr}">
+          <span style="font-size:28px;font-weight:900;color:#1d9bf0">CM</span>
+        </div>
+        <div style="font-size:20px;font-weight:700;color:${t.txt}">ClearMind</div>
+        <div style="font-size:13px;color:${t.mut};margin-top:4px">Version 2.4.1 · Build 240</div>
+      </div>
+      ${[["Developer","ClearMind Labs"],["Website","clearmind.app"],["Privacy Policy","View →"],["Terms of Service","View →"]].map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-top:1px solid ${t.line}">
+        <span style="font-size:14px;color:${t.mut}">${k}</span><span style="font-size:14px;font-weight:500;color:${t.txt}">${v}</span>
+      </div>`).join("")}`,
+
+    signout:`
+      <div class="modal-handle" style="background:${t.bdr}"></div>
+      <div style="text-align:center;padding:8px 0 20px">
+        <div style="font-size:42px;margin-bottom:12px">👋</div>
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Sign out?</div>
+        <div style="font-size:14px;color:${t.mut};margin-top:6px;line-height:1.5">You'll need to sign back in to access your data and settings.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button onclick="closeAddLimit()" style="border-radius:16px;padding:14px;font-size:15px;font-weight:600;color:${t.txt};background:${t.surf2};border:1px solid ${t.bdr}">Cancel</button>
+        <button onclick="closeAddLimit()" style="border-radius:16px;padding:14px;font-size:15px;font-weight:700;color:#fff;background:#f91880">Sign Out</button>
+      </div>`,
+  };
+
+  sh.innerHTML = sheets[which] || sheets.Account;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>bg.classList.add("open")));
+}
+
+// ─── NOTIFICATION PANEL ──────────────────────────────────────────────────────
+function openNotif(){
+  haptic([4]);
+  drawNotif(c());
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.getElementById("notif-panel").classList.add("open")));
+}
+function closeNotif(){
+  document.getElementById("notif-panel").classList.remove("open");
+  // Mark all as read
+  NOTIFS.forEach(n=>n.unread=false);
+  // Update bell badge without re-render
+  const badge=document.querySelector(".notif-badge");
+  if(badge)badge.remove();
+}
+function drawNotif(t){
+  const inner=document.getElementById("notif-inner");
+  inner.style.borderColor=t.bdr;inner.style.background=t.surf;
+  inner.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px">
+      <div style="font-size:17px;font-weight:700;color:${t.txt}">Notifications</div>
+      <button onclick="closeNotif()" style="font-size:13px;font-weight:600;color:${t.acc}">Mark all read</button>
+    </div>
+    ${NOTIFS.map((n,i)=>`<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;${i?"border-top:1px solid "+t.line+";":""}${n.unread?"background:"+t.surf2+";":""}">
+      <div style="width:40px;height:40px;border-radius:12px;background:${t.surf2};display:grid;place-items:center;font-size:18px;flex-shrink:0">${n.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:14px;font-weight:600;color:${t.txt}">${n.title}</span>
+          ${n.unread?`<span style="width:6px;height:6px;border-radius:50%;background:${t.acc};flex-shrink:0"></span>`:""}
+        </div>
+        <div style="font-size:13px;color:${t.mut};margin-top:2px;line-height:1.4">${n.body}</div>
+        <div style="font-size:11px;color:${t.mut};margin-top:4px">${n.time}</div>
+      </div>
+    </div>`).join("")}
+    <div style="padding:12px 16px">
+      <button onclick="closeNotif()" style="width:100%;border-radius:14px;padding:12px;font-size:14px;font-weight:600;color:${t.txt};background:${t.surf2};border:1px solid ${t.bdr}">Close</button>
+    </div>`;
 }
 
 // ─── MODALS ──────────────────────────────────────────────────────────────────
-
-function drawModals() {
-  const c = t();
+function drawModals(t){
   // Focus modal
-  const fm = document.getElementById("mod-focus");
-  const fs = document.getElementById("mod-focus-sheet");
-  const tstr = fStr();
-  fs.style.borderColor = c.bdr;
-  fs.style.background = c.surf;
-  fs.innerHTML = `
-    <div class="modal-handle" style="background:${c.bdr}"></div>
+  const fm=document.getElementById("mod-focus");
+  const fs=document.getElementById("mod-focus-sheet");
+  const tstr=fStr();
+  fs.style.borderColor=t.bdr;fs.style.background=t.surf;
+  fs.innerHTML=`
+    <div class="modal-handle" style="background:${t.bdr}"></div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
       <div>
-        <div style="font-size:18px;font-weight:700;letter-spacing:-0.03em;color:${c.txt}">${S.frun ? "Focus session started" : S.fsec === 0 ? "Session complete" : "Focus controls"}</div>
-        <div style="font-size:13px;color:${c.mut};margin-top:3px">${S.frun ? "Your apps are blocked." : "Manage current session."}</div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:-.03em;color:${t.txt}">${S.frun?"Session running":S.fsec===0?"Session complete":"Focus controls"}</div>
+        <div style="font-size:13px;color:${t.mut};margin-top:3px">${S.frun?"Distractions blocked.":"Manage your session."}</div>
       </div>
-      <button onclick="closeModal('focus')" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${c.surf2};color:${c.mut};font-size:18px;flex-shrink:0">×</button>
+      <button onclick="closeModal('focus')" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px;flex-shrink:0">×</button>
     </div>
-    <div style="border-radius:16px;padding:16px;text-align:center;background:${c.page}">
-      <div id="m-time" style="font-size:44px;font-weight:700;letter-spacing:-0.07em;color:${c.txt};font-variant-numeric:tabular-nums">${tstr}</div>
-      <div style="font-size:14px;color:${c.mut};margin-top:4px">${S.fpreset}</div>
+    <div style="border-radius:16px;padding:16px;text-align:center;background:${t.page}">
+      <div id="m-time" style="font-size:44px;font-weight:700;letter-spacing:-.07em;color:${t.txt};font-variant-numeric:tabular-nums">${tstr}</div>
+      <div style="font-size:14px;color:${t.mut};margin-top:4px">${S.fpreset}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
-      <button class="btn-full" onclick="${S.frun ? "doPause()" : "doStart()"}" style="border-radius:14px;padding:13px;background:${c.acc}">${S.frun ? "Pause" : "Start"}</button>
-      <button class="btn-outline" onclick="doReset()" style="border-radius:14px;border-color:${c.bdr};color:${c.txt}">Reset</button>
+      <button class="btn-row btn-full" onclick="${S.frun?"doPause()":"doStart()"}" style="background:${t.acc}">${S.frun?"Pause":"Resume"}</button>
+      <button class="btn-row btn-outline" onclick="doReset();closeModal('focus')" style="border-color:${t.bdr};color:${t.txt}">End</button>
     </div>`;
-  fm.className = "modal-bg" + (S.fmodal ? " open" : "");
+  fm.className="modal-bg"+(S.fmodal?" open":"");
 
   // Insights modal
-  const im = document.getElementById("mod-insight");
-  const is = document.getElementById("mod-insight-sheet");
-  is.style.borderColor = c.bdr;
-  is.style.background = c.surf;
-  is.innerHTML = `
-    <div class="modal-handle" style="background:${c.bdr}"></div>
+  const im=document.getElementById("mod-insight");
+  const is2=document.getElementById("mod-insight-sheet");
+  is2.style.borderColor=t.bdr;is2.style.background=t.surf;
+  is2.innerHTML=`
+    <div class="modal-handle" style="background:${t.bdr}"></div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
       <div>
-        <div style="font-size:18px;font-weight:700;color:${c.txt}">Insight details</div>
-        <div style="font-size:13px;color:${c.mut};margin-top:3px">${S.irange} breakdown</div>
+        <div style="font-size:18px;font-weight:700;color:${t.txt}">Insight details</div>
+        <div style="font-size:13px;color:${t.mut};margin-top:3px">${S.irange} breakdown</div>
       </div>
-      <button onclick="closeModal('insight')" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${c.surf2};color:${c.mut};font-size:18px;flex-shrink:0">×</button>
+      <button onclick="closeModal('insight')" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px;flex-shrink:0">×</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
-      ${CATS.map(cat => `<div style="border-radius:14px;border:1px solid ${c.bdr};background:${c.page};padding:13px">
+      ${CATS.map(cat=>`<div style="border-radius:14px;border:1px solid ${t.bdr};background:${t.page};padding:13px">
         <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px">
-          <span style="color:${c.txt}">${cat.name}</span><span style="color:${c.mut}">${cat.time}</span>
+          <span style="color:${t.txt}">${cat.name}</span><span style="color:${t.mut}">${cat.time}</span>
         </div>
-        ${prog(cat.pct * 2.2, cat.col)}
+        ${prog(cat.pct*2.2,cat.col)}
       </div>`).join("")}
     </div>`;
-  im.className = "modal-bg" + (S.imodal ? " open" : "");
+  im.className="modal-bg"+(S.imodal?" open":"");
 }
 
-function closeModal(which) {
-  haptic([4]);
-  if (which === "focus")   upd({ fmodal: false });
-  if (which === "insight") upd({ imodal: false });
-}
+function closeModal(which){haptic([4]);if(which==="focus")upd({fmodal:false});else upd({imodal:false});}
 
 // ─── NAV ─────────────────────────────────────────────────────────────────────
-
-function drawNav() {
-  const c = t();
-  const el = document.getElementById("nav");
-  el.style.borderColor = c.line;
-  el.style.background  = c.bg; /* fully opaque — no transparency */
-  document.getElementById("navrow").innerHTML = TABS.map(tab => {
-    const sel = S.tab === tab.id;
-    return `<button class="ntab${sel?" on":""}" onclick="doNav('${tab.id}')" style="color:${sel?c.acc:c.mut}">
-      ${ic(tab.id, 22)}
-      <span class="label">${tab.label}</span>
-      <span class="ntab-dot" style="background:${c.acc}"></span>
+function drawNav(t){
+  const el=document.getElementById("nav");
+  el.style.borderColor=t.line;el.style.background=t.bg;
+  document.getElementById("navrow").innerHTML=TABS.map(tab=>{
+    const sel=S.tab===tab.id;
+    return `<button class="ntab${sel?" on":""}" onclick="doNav('${tab.id}')" style="color:${sel?t.acc:t.mut}">
+      ${ic(tab.id,22)}
+      <span class="lbl">${tab.label}</span>
+      <span class="ntab-dot" style="background:${t.acc}"></span>
     </button>`;
   }).join("");
 }
 
-// ─── MAIN DRAW ───────────────────────────────────────────────────────────────
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+let prevTab="", prevTheme="";
 
-let prevTab = "";
-let prevTheme = "";
+function renderPage(t, tabChanged, themeChanged){
+  let html="";
+  if(S.tab==="insights") html=pageInsights();
+  else if(S.tab==="focus") html=pageFocus();
+  else if(S.tab==="limits") html=pageLimits();
+  else if(S.tab==="profile") html=pageProfile();
+  else html=pageHome();
 
-function draw() {
-  const c = t();
-  applyTheme(c);
-  drawNav();
-
-  const scroller = document.getElementById("scroller");
-  scroller.style.background = c.page;
-
-  const tabChanged   = S.tab   !== prevTab;
-  const themeChanged = S.theme !== prevTheme;
-
-  let html = "";
-  if (S.tab === "insights") html = pageInsights();
-  else if (S.tab === "focus") html = pageFocus();
-  else if (S.tab === "limits") html = pageLimits();
-  else if (S.tab === "profile") html = pageProfile();
-  else html = pageHome();
-
-  const page = document.getElementById("page");
-  page.innerHTML = html;
-
-  // Only animate on tab changes, not theme switches
-  const wrap = document.getElementById("page-wrap");
-  if (wrap) {
-    if (themeChanged && !tabChanged) {
-      wrap.classList.add("no-anim");
-    } else {
-      wrap.classList.remove("no-anim");
-    }
-  }
-
-  if (tabChanged) scroller.scrollTop = 0;
-  prevTab   = S.tab;
-  prevTheme = S.theme;
-
-  drawModals();
+  document.getElementById("page").innerHTML=html;
+  const wrap=document.getElementById("page-wrap");
+  if(wrap&&themeChanged&&!tabChanged) wrap.classList.add("no-anim");
+  if(tabChanged) document.getElementById("scroller").scrollTop=0;
+  prevTab=S.tab; prevTheme=S.theme;
 }
 
-// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+// ─── MISC ACTIONS ─────────────────────────────────────────────────────────────
+function haptic(p){try{if(navigator.vibrate)navigator.vibrate(p||[5]);}catch(e){}}
+function doInstall(){haptic([8]);if(S.deferred&&typeof S.deferred.prompt==="function"){S.deferred.prompt();S.deferred.userChoice&&S.deferred.userChoice.then(()=>upd({deferred:null}));return;}showInstSheet();}
 
-function doNav(id) {
-  if (id === S.tab) { document.getElementById("scroller").scrollTo({ top: 0, behavior: "smooth" }); return; }
-  haptic([4]);
-  upd({ tab: id });
-}
-
-function doPreset(name, mins) {
-  stopTimer();
-  haptic([4]);
-  upd({ fpreset: name, fsec: mins * 60, frun: false });
-}
-
-function doStart() {
-  if (S.fsec === 0) { S.fsec = fTotal(); }
-  haptic([6, 50, 10]);
-  upd({ frun: true, fmodal: true });
-  startTimer();
-}
-
-function doPause() { stopTimer(); haptic([4]); upd({ frun: false }); }
-
-function doReset() { stopTimer(); haptic([4]); upd({ frun: false, fsec: fTotal() }); }
-
-function haptic(p) { try { if (navigator.vibrate) navigator.vibrate(p || [5]); } catch(e){} }
-
-// ─── INSTALL ─────────────────────────────────────────────────────────────────
-
-function doInstall() {
-  haptic([8]);
-  if (S.deferred && typeof S.deferred.prompt === "function") {
-    S.deferred.prompt();
-    S.deferred.userChoice && S.deferred.userChoice.then(() => upd({ deferred: null }));
-    return;
-  }
-  showInstSheet();
-}
-
-function showInstSheet() {
-  const c = t();
-  const bg = document.getElementById("inst-bg");
-  const sh = document.getElementById("inst-sheet");
-  sh.style.background = c.surf;
-  sh.style.borderColor = c.bdr;
-  sh.innerHTML = `
+function showInstSheet(){
+  const t=c();
+  const bg=document.getElementById("inst-bg");
+  const sh=document.getElementById("inst-sheet");
+  sh.style.background=t.surf;sh.style.borderColor=t.bdr;
+  sh.innerHTML=`
     <div style="text-align:center;margin-bottom:20px">
-      <div style="width:56px;height:56px;border-radius:14px;background:#000;display:grid;place-items:center;margin:0 auto 12px;border:1px solid ${c.bdr}">
-        <span style="font-size:18px;font-weight:900;color:#1d9bf0">CM</span>
-      </div>
-      <div style="font-size:18px;font-weight:700;color:${c.txt}">Add to Home Screen</div>
-      <div style="font-size:13px;color:${c.mut};margin-top:6px;line-height:1.5">Use ClearMind like a native app — no browser bar, works offline</div>
+      <div style="width:56px;height:56px;border-radius:14px;background:#000;display:grid;place-items:center;margin:0 auto 12px;border:1px solid ${t.bdr}"><span style="font-size:18px;font-weight:900;color:#1d9bf0">CM</span></div>
+      <div style="font-size:18px;font-weight:700;color:${t.txt}">Add to Home Screen</div>
+      <div style="font-size:13px;color:${t.mut};margin-top:6px;line-height:1.5">Use ClearMind like a native app — no browser bar, works offline</div>
     </div>
-    <div style="background:${c.surf2};border-radius:16px;overflow:hidden;margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:12px;padding:14px">
-        <span style="font-size:22px;flex-shrink:0">📱</span>
-        <div style="font-size:14px;color:${c.txt};line-height:1.4"><b>iPhone / iPad</b><br>Tap <b>Share</b> → <b>Add to Home Screen</b></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;padding:14px;border-top:1px solid ${c.line}">
-        <span style="font-size:22px;flex-shrink:0">🤖</span>
-        <div style="font-size:14px;color:${c.txt};line-height:1.4"><b>Android</b><br>Tap <b>⋮ Menu</b> → <b>Install app</b></div>
-      </div>
+    <div style="background:${t.surf2};border-radius:16px;overflow:hidden;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px"><span style="font-size:22px;flex-shrink:0">📱</span><div style="font-size:14px;color:${t.txt};line-height:1.4"><b>iPhone / iPad</b><br>Tap <b>Share</b> → <b>Add to Home Screen</b></div></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px;border-top:1px solid ${t.line}"><span style="font-size:22px;flex-shrink:0">🤖</span><div style="font-size:14px;color:${t.txt};line-height:1.4"><b>Android</b><br>Tap <b>⋮ Menu</b> → <b>Install app</b></div></div>
     </div>
-    <button onclick="closeInst()" style="width:100%;border-radius:16px;padding:14px;font-size:15px;font-weight:600;color:${c.txt};background:${c.surf2};border:1px solid ${c.bdr}">Got it</button>`;
-  requestAnimationFrame(() => requestAnimationFrame(() => bg.classList.add("open")));
+    <button onclick="closeInst()" style="width:100%;border-radius:16px;padding:14px;font-size:15px;font-weight:600;color:${t.txt};background:${t.surf2};border:1px solid ${t.bdr}">Got it</button>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>bg.classList.add("open")));
 }
+function closeInst(){document.getElementById("inst-bg").classList.remove("open");}
 
-function closeInst() {
-  document.getElementById("inst-bg").classList.remove("open");
-}
-
-// ─── SWIPE NAVIGATION ────────────────────────────────────────────────────────
-
-let tx0 = 0, ty0 = 0;
-const scr = document.getElementById("scroller");
-scr.addEventListener("touchstart", e => { tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY; }, { passive: true });
-scr.addEventListener("touchend", e => {
-  const dx = e.changedTouches[0].clientX - tx0;
-  const dy = e.changedTouches[0].clientY - ty0;
-  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.8) {
-    const idx = TABS.findIndex(tab => tab.id === S.tab);
-    if (dx < 0 && idx < TABS.length - 1) doNav(TABS[idx + 1].id);
-    else if (dx > 0 && idx > 0)          doNav(TABS[idx - 1].id);
+// ─── SWIPE & TOUCH ───────────────────────────────────────────────────────────
+let tx0=0,ty0=0;
+const scr=document.getElementById("scroller");
+scr.addEventListener("touchstart",e=>{tx0=e.touches[0].clientX;ty0=e.touches[0].clientY;},{passive:true});
+scr.addEventListener("touchend",e=>{
+  const dx=e.changedTouches[0].clientX-tx0, dy=e.changedTouches[0].clientY-ty0;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.8){
+    const idx=TABS.findIndex(tab=>tab.id===S.tab);
+    if(dx<0&&idx<TABS.length-1)doNav(TABS[idx+1].id);
+    else if(dx>0&&idx>0)doNav(TABS[idx-1].id);
   }
-}, { passive: true });
+},{passive:true});
+document.addEventListener("touchmove",e=>{
+  if(!e.target.closest("#scroller,.modal-sheet,.inst-sheet,.notif-inner,.add-limit-sheet"))e.preventDefault();
+},{passive:false});
 
-// Prevent safari overscroll bounce
-document.addEventListener("touchmove", e => {
-  if (!e.target.closest("#scroller, .modal-sheet, .inst-sheet")) e.preventDefault();
-}, { passive: false });
-
-// ─── PWA SETUP ───────────────────────────────────────────────────────────────
-
-function initPWA() {
-  const c = TH[S.theme] || TH.dark;
-
-  // Service worker for offline
-  if ("serviceWorker" in navigator) {
-    const sw = `const V='cm2';self.addEventListener('install',e=>e.waitUntil(caches.open(V)));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>new Response('<h1>Offline</h1>',{headers:{'Content-Type':'text/html'}})))))`;
-    const swBlob = new Blob([sw], { type: "application/javascript" });
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+// ─── PWA ─────────────────────────────────────────────────────────────────────
+function initPWA(){
+  const t=TH[S.theme]||TH.dark;
+  if("serviceWorker" in navigator){
+    const sw=`const V='cm3';self.addEventListener('install',e=>e.waitUntil(caches.open(V)));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>new Response('<h1>ClearMind — Offline</h1>',{headers:{'Content-Type':'text/html'}})))))`;
+    navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"}))).catch(()=>{});
   }
-
-  // Web manifest
-  const iconSvg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23000'/><text x='256' y='312' text-anchor='middle' font-size='176' font-family='-apple-system,sans-serif' font-weight='800' fill='%231d9bf0'>CM</text></svg>`);
-  const iconUrl = `data:image/svg+xml,${iconSvg}`;
-
-  const manifest = {
-    name: "ClearMind", short_name: "ClearMind",
-    description: "Mindful screen time tracking",
-    start_url: ".", display: "standalone",
-    orientation: "portrait-primary",
-    background_color: c.bg, theme_color: c.bg,
-    categories: ["health", "lifestyle"],
-    icons: [
-      { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" },
-      { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" }
-    ]
-  };
-  const mBlob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
-  let ml = document.querySelector('link[rel="manifest"]');
-  if (!ml) { ml = document.createElement("link"); ml.rel = "manifest"; document.head.appendChild(ml); }
-  ml.href = URL.createObjectURL(mBlob);
-
-  // Apple touch icon
-  let ai = document.querySelector('link[rel="apple-touch-icon"]');
-  if (!ai) { ai = document.createElement("link"); ai.rel = "apple-touch-icon"; document.head.appendChild(ai); }
-  ai.href = iconUrl;
-
-  window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); S.deferred = e; upd({}); });
-  window.addEventListener("appinstalled", () => upd({ installed: true, deferred: null }));
-  if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) S.installed = true;
+  const iconSvg=encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23000'/><text x='256' y='312' text-anchor='middle' font-size='176' font-family='-apple-system,sans-serif' font-weight='800' fill='%231d9bf0'>CM</text></svg>`);
+  const iconUrl=`data:image/svg+xml,${iconSvg}`;
+  const manifest={name:"ClearMind",short_name:"ClearMind",description:"Mindful screen time tracking",start_url:".",display:"standalone",orientation:"portrait-primary",background_color:t.bg,theme_color:t.bg,categories:["health","lifestyle"],icons:[{src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"},{src:iconUrl,sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"}]};
+  const mBlob=new Blob([JSON.stringify(manifest)],{type:"application/manifest+json"});
+  let ml=document.querySelector('link[rel="manifest"]');
+  if(!ml){ml=document.createElement("link");ml.rel="manifest";document.head.appendChild(ml);}
+  ml.href=URL.createObjectURL(mBlob);
+  let ai=document.querySelector('link[rel="apple-touch-icon"]');
+  if(!ai){ai=document.createElement("link");ai.rel="apple-touch-icon";document.head.appendChild(ai);}
+  ai.href=iconUrl;
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();S.deferred=e;upd({});});
+  window.addEventListener("appinstalled",()=>upd({installed:true,deferred:null}));
+  if(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)S.installed=true;
 }
 
-// ─── EXPOSE GLOBALS ──────────────────────────────────────────────────────────
-
-Object.assign(window, { upd, doNav, doPreset, doStart, doPause, doReset, haptic, doInstall, closeModal, closeInst, showInstSheet });
+// ─── EXPOSE ──────────────────────────────────────────────────────────────────
+Object.assign(window,{upd,doNav,doPreset,doStart,doPause,doReset,haptic,doInstall,closeModal,closeInst,openNotif,closeNotif,openAddLimit,closeAddLimit,confirmAddLimit,pickMins,removeLimit,toggleRule,handleSetting,openProfileSheet});
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
-
 initPWA();
-applyTheme(TH[S.theme]);
-prevTheme = S.theme;
-draw();
+const _t=TH[S.theme];
+applyTheme(_t);
+drawNav(_t);
+renderPage(_t,true,false);
+drawModals(_t);
+drawNotif(_t);
 </script>
 </body>
 </html>
