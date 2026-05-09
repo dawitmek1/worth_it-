@@ -1,36 +1,1126 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#090908" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="AUREA" />
-  <title>AUREA — Protect your attention</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ClearMind">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000" id="tc">
+<title>ClearMind</title>
+<style>
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; overflow: hidden; }
+body {
+  height: 100dvh;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; -webkit-appearance: none; outline: none; }
+
+/* ── LAYOUT SHELL ── */
+#shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── SCROLL AREA ── */
+#scroller {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+#scroller::-webkit-scrollbar { display: none; }
+
+/* ── BOTTOM NAV ── */
+#nav {
+  flex-shrink: 0;
+  border-top: 1px solid;
+  padding-top: 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+.nav-inner {
+  max-width: 430px;
+  margin: 0 auto;
+  display: flex;
+  padding: 0 4px;
+}
+.ntab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  border-radius: 12px;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.ntab:active { transform: scale(0.85); }
+.ntab span.label { font-size: 10px; font-weight: 500; }
+.ntab.on span.label { font-weight: 700; }
+.ntab-dot {
+  position: absolute;
+  bottom: 1px;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ntab.on .ntab-dot { opacity: 1; transform: scale(1); }
+
+/* ── PAGE CONTENT ── */
+#page-wrap {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 0 16px;
+  padding-bottom: 20px;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid;
+  padding: 10px 16px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+.topbar-inner {
+  max-width: 430px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.cm-badge {
+  position: relative;
+  width: 38px; height: 38px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  border: 1px solid;
+}
+.cm-dot {
+  position: absolute;
+  top: -3px; right: -3px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2.5px solid;
+}
+.cm-eyebrow { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; }
+.cm-title { font-size: 17px; font-weight: 700; letter-spacing: -0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status-chip { border-radius: 99px; border: 1px solid; padding: 4px 10px; font-size: 11px; font-weight: 600; }
+.icon-btn { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; border: 1px solid; flex-shrink: 0; }
+
+/* ── CARDS ── */
+.card {
+  border-radius: 22px;
+  border: 1px solid;
+  overflow: hidden;
+}
+.card-p { padding: 16px; }
+
+/* ── PROGRESS ── */
+.prog { height: 6px; border-radius: 99px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; transition: width 0.5s; }
+
+/* ── BUTTONS ── */
+.btn-full {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 22px;
+  padding: 15px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.12s;
+}
+.btn-full:active { transform: scale(0.96); filter: brightness(0.88); }
+.btn-outline {
+  border-radius: 22px;
+  border: 1px solid;
+  padding: 15px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.12s;
+}
+.btn-outline:active { transform: scale(0.96); }
+.btn-pill { border-radius: 99px; padding: 6px 13px; font-size: 12px; font-weight: 700; }
+
+/* ── RING ── */
+.ring-wrap { position: relative; flex-shrink: 0; }
+.ring-inner { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+
+/* ── FOCUS RING ── */
+.focus-ring {
+  position: relative;
+  width: 240px; height: 240px;
+  margin: 20px auto;
+  display: grid;
+  place-items: center;
+}
+.focus-glow {
+  position: absolute;
+  inset: 32px;
+  border-radius: 50%;
+  filter: blur(32px);
+}
+.focus-num {
+  font-size: 54px;
+  font-weight: 600;
+  letter-spacing: -0.09em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── PRESET BTN ── */
+.preset {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid;
+  padding: 14px 16px;
+  text-align: left;
+  transition: transform 0.12s;
+}
+.preset:active { transform: scale(0.98); }
+
+/* ── TOGGLE ── */
+.tog {
+  width: 46px; height: 27px;
+  border-radius: 99px;
+  position: relative;
+  flex-shrink: 0;
+}
+.tog::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 21px; height: 21px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateX(19px);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+
+/* ── RANGE TABS ── */
+.rtabs { display: grid; grid-template-columns: repeat(4, 1fr); border-radius: 14px; padding: 4px; }
+.rtab { border-radius: 10px; padding: 8px; font-size: 12px; font-weight: 500; transition: all 0.18s; }
+
+/* ── THEME SWITCHER ── */
+.tsw { display: grid; grid-template-columns: repeat(3, 1fr); border-radius: 99px; padding: 3px; }
+.tsw-btn { border-radius: 99px; padding: 8px; font-size: 11px; font-weight: 600; transition: all 0.2s; }
+
+/* ── MODAL ── */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: rgba(0,0,0,0);
+  pointer-events: none;
+  transition: background 0.28s;
+}
+.modal-bg.open {
+  background: rgba(0,0,0,0.56);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  pointer-events: all;
+}
+.modal-sheet {
+  width: 100%;
+  max-width: 430px;
+  border-radius: 28px;
+  border: 1px solid;
+  padding: 20px;
+  transform: translateY(110%);
+  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+  box-shadow: 0 -8px 48px rgba(0,0,0,0.4);
+}
+.modal-bg.open .modal-sheet { transform: translateY(0); }
+.modal-handle { width: 36px; height: 4px; border-radius: 99px; margin: 0 auto 16px; }
+
+/* ── INSTALL SHEET ── */
+.inst-bg {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: rgba(0,0,0,0.7);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.inst-bg.open { opacity: 1; pointer-events: all; }
+.inst-sheet {
+  width: 100%; max-width: 430px;
+  border-radius: 28px;
+  border: 1px solid;
+  padding: 24px;
+  transform: translateY(100%);
+  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.inst-bg.open .inst-sheet { transform: translateY(0); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.fu { animation: fadeUp 0.28s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.fu1 { animation-delay: 0.04s; }
+.fu2 { animation-delay: 0.09s; }
+.fu3 { animation-delay: 0.14s; }
+.fu4 { animation-delay: 0.19s; }
+.fu5 { animation-delay: 0.24s; }
+.fu6 { animation-delay: 0.29s; }
+
+/* ── UTILS ── */
+.row { display: flex; align-items: center; }
+.col { display: flex; flex-direction: column; }
+.g2 { gap: 8px; }
+.g3 { gap: 12px; }
+.g4 { gap: 16px; }
+.mt2 { margin-top: 8px; }
+.mt3 { margin-top: 12px; }
+.mt4 { margin-top: 16px; }
+.mt5 { margin-top: 20px; }
+.sb { justify-content: space-between; }
+.tr { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mn0 { min-width: 0; }
+.f1 { flex: 1; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fs { flex-shrink: 0; }
+</style>
 </head>
 <body>
-  <div id="app" class="app-shell">
-    <div id="splash" class="splash">
-      <div class="brand-seal">A</div>
-      <div class="brand-word">AUREA</div>
-      <p>Protect your attention.</p>
+<div id="shell">
+  <div id="scroller"><div id="page"></div></div>
+  <nav id="nav"><div class="nav-inner" id="navrow"></div></nav>
+</div>
+
+<div class="modal-bg" id="mod-focus" onclick="if(event.target===this)closeModal('focus')">
+  <div class="modal-sheet" id="mod-focus-sheet"></div>
+</div>
+<div class="modal-bg" id="mod-insight" onclick="if(event.target===this)closeModal('insight')">
+  <div class="modal-sheet" id="mod-insight-sheet"></div>
+</div>
+<div class="inst-bg" id="inst-bg" onclick="if(event.target===this)closeInst()">
+  <div class="inst-sheet" id="inst-sheet"></div>
+</div>
+
+<script>
+"use strict";
+
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const TH = {
+  dark:  { id:"dark",  label:"Dark",  bg:"#000000", page:"#000000", surf:"#101214", surf2:"#16181c", bdr:"#2f3336", line:"#202327", txt:"#e7e9ea", mut:"#71767b", acc:"#1d9bf0" },
+  dim:   { id:"dim",   label:"Dim",   bg:"#15202b", page:"#15202b", surf:"#1b2733", surf2:"#22303c", bdr:"#314253", line:"#314253", txt:"#f7f9f9", mut:"#8b98a5", acc:"#1d9bf0" },
+  light: { id:"light", label:"Light", bg:"#f7f9fb", page:"#ffffff", surf:"#ffffff", surf2:"#eff3f4", bdr:"#cfd9de", line:"#eff3f4", txt:"#0f1419", mut:"#536471", acc:"#1d9bf0" }
+};
+
+const TABS = [
+  { id:"home",     label:"Home" },
+  { id:"insights", label:"Insights" },
+  { id:"focus",    label:"Focus" },
+  { id:"limits",   label:"Limits" },
+  { id:"profile",  label:"Profile" }
+];
+
+const APPS = [
+  { name:"Instagram", brand:"ig",      daily:"1h 00m", left:"18m left", pct:70 },
+  { name:"YouTube",   brand:"yt",      daily:"1h 30m", left:"45m left", pct:50 },
+  { name:"TikTok",    brand:"tt",      daily:"45m",    left:"12m left", pct:74 },
+  { name:"Discord",   brand:"dc",      daily:"1h 00m", left:"28m left", pct:54 },
+  { name:"X",         brand:"x",       daily:"30m",    left:"8m left",  pct:73 }
+];
+
+const CATS = [
+  { name:"Social",        time:"10h 24m", pct:32, col:"#1d9bf0" },
+  { name:"Productivity",  time:"7h 48m",  pct:24, col:"#7856ff" },
+  { name:"Entertainment", time:"6h 20m",  pct:20, col:"#f91880" },
+  { name:"Education",     time:"3h 42m",  pct:12, col:"#00ba7c" },
+  { name:"Other",         time:"3h 00m",  pct:11, col:"#71767b" }
+];
+
+const GOALS = [
+  { label:"Screen Time",         val:"32h / 40h",    pct:80, col:"#1d9bf0" },
+  { label:"Focus Sessions",      val:"12 / 20",      pct:60, col:"#7856ff" },
+  { label:"Bedtime Consistency", val:"5 / 7 nights", pct:72, col:"#00ba7c" }
+];
+
+const ITOTALS = {
+  Day:   { time:"4h 37m",   chg:"Down 18% vs yesterday" },
+  Week:  { time:"32h 14m",  chg:"Down 12% vs last week" },
+  Month: { time:"118h 20m", chg:"Down 9% vs last month" },
+  Year:  { time:"1,284h",   chg:"Down 6% vs last year"  }
+};
+
+const SETTINGS = ["Account","Privacy","Notifications","Data & Sync","Appearance","About ClearMind"];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+
+const S = {
+  tab: "home",
+  theme: "dark",
+  deferred: null,
+  installed: false,
+  // focus
+  fsec: 45 * 60,
+  frun: false,
+  fpreset: "Deep Work",
+  fmodal: false,
+  ftimer: null,
+  // insights
+  irange: "Week",
+  imodal: false,
+};
+
+let raf = null;
+function upd(patch) {
+  Object.assign(S, patch);
+  if (raf) return;
+  raf = requestAnimationFrame(() => { raf = null; draw(); });
+}
+
+// ─── THEME VARS ──────────────────────────────────────────────────────────────
+
+function applyTheme(t) {
+  const ds = document.documentElement.style;
+  ds.setProperty('--bg',   t.bg);
+  ds.setProperty('--page', t.page);
+  ds.setProperty('--surf', t.surf);
+  ds.setProperty('--surf2',t.surf2);
+  ds.setProperty('--bdr',  t.bdr);
+  ds.setProperty('--line', t.line);
+  ds.setProperty('--txt',  t.txt);
+  ds.setProperty('--mut',  t.mut);
+  ds.setProperty('--acc',  t.acc);
+  document.getElementById('tc').content = t.bg;
+  document.body.style.background = t.bg;
+  document.getElementById('scroller').style.background = t.page;
+}
+
+// ─── ICONS ───────────────────────────────────────────────────────────────────
+
+const IP = {
+  home:     `<path d="M5 14.4 16 5.5l11 8.9v11.1a1.8 1.8 0 0 1-1.8 1.8h-5.1v-6.6a4.1 4.1 0 0 0-8.2 0v6.6H6.8A1.8 1.8 0 0 1 5 25.5V14.4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  insights: `<path d="M7 25V14M16 25V7M25 25v-8" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  focus:    `<circle cx="16" cy="16" r="9" stroke="currentColor" stroke-width="2.1" fill="none"/><circle cx="16" cy="16" r="3" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M16 3v4M16 25v4M3 16h4M25 16h4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  limits:   `<path d="M16 4 7 7.6v6.8c0 6 3.8 11.2 9 13.6 5.2-2.4 9-7.6 9-13.6V7.6L16 4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="m12.5 16 2.4 2.4 5-5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  profile:  `<circle cx="16" cy="9.5" r="4.2" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M7 26c.72-5.1 4.05-8.1 9-8.1s8.28 3 9 8.1H7Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  bell:     `<path d="M16 28c1.5 0 2.7-.9 3.2-2.2h-6.4A3.4 3.4 0 0 0 16 28Z" fill="currentColor"/><path d="M7.8 22.9h16.4c.9 0 1.5-1 1-1.8l-1.4-2.2a5.4 5.4 0 0 1-.8-2.9v-3.3C23 8.1 19.9 4.8 16 4.8s-7 3.3-7 7.9V16c0 1-.3 2-.8 2.9l-1.4 2.2c-.5.8.1 1.8 1 1.8Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  clock:    `<circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M16 9v8l5 3" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  plus:     `<path d="M16 7v18M7 16h18" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  play:     `<path d="M11 8v16l13-8-13-8Z" fill="currentColor"/>`,
+  pause:    `<rect x="9" y="7" width="4" height="18" rx="1" fill="currentColor"/><rect x="19" y="7" width="4" height="18" rx="1" fill="currentColor"/>`,
+  check:    `<path d="m8 16 5 5L24 10" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  settings: `<circle cx="16" cy="16" r="3" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M16 4v4M16 24v4M6.2 10.2l3.4 2M22.4 19.8l3.4 2M6.2 21.8l3.4-2M22.4 12.2l3.4-2" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  calendar: `<rect x="6" y="8" width="20" height="18" rx="3" stroke="currentColor" stroke-width="2.1" fill="none"/><path d="M10 5v5M22 5v5M6 13h20" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  star:     `<path d="m16 4 3.6 7.3 8.1 1.2-5.85 5.7 1.38 8.05L16 22.45 8.77 26.25l1.38-8.05-5.85-5.7 8.1-1.2L16 4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  chevron:  `<path d="M13 8l6 8-6 8" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  shield:   `<path d="M16 4 7 7.6v6.8c0 6 3.8 11.2 9 13.6 5.2-2.4 9-7.6 9-13.6V7.6L16 4Z" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  bolt:     `<path d="M17 3 7 18h8l-1 11 11-17h-8V3Z" fill="currentColor"/>`
+};
+
+function ic(name, size = 20) {
+  return `<svg viewBox="0 0 32 32" width="${size}" height="${size}" fill="none" aria-hidden="true">${IP[name] || ""}</svg>`;
+}
+
+// ─── APP BADGE SVGs ───────────────────────────────────────────────────────────
+
+function brandSVG(brand, s) {
+  if (brand === "ig") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><defs><radialGradient id="ig" cx="30%" cy="107%" r="120%"><stop offset="0" stop-color="#fdf497"/><stop offset=".38" stop-color="#fd5949"/><stop offset=".62" stop-color="#d6249f"/><stop offset="1" stop-color="#285AEB"/></radialGradient></defs><rect x="3" y="3" width="42" height="42" rx="12" fill="url(#ig)"/><rect x="13" y="13" width="22" height="22" rx="7" fill="none" stroke="white" stroke-width="3.2"/><circle cx="24" cy="24" r="6" fill="none" stroke="white" stroke-width="3.2"/><circle cx="32" cy="16" r="2.2" fill="white"/></svg>`;
+  if (brand === "yt") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect x="3" y="9" width="42" height="30" rx="8" fill="#FF0000"/><path d="M20 17.5v13L32 24l-12-6.5Z" fill="white"/></svg>`;
+  if (brand === "tt") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#050505"/><path d="M29 10c1.2 4.1 3.9 6.7 8 7.2v6.1c-3-.1-5.6-.9-8-2.6v10.4c0 6-4.3 9.9-10.2 9.9-5.2 0-9.3-3.5-9.3-8.7 0-5.5 4.5-9.1 10.5-8.7v6.2c-2.7-.4-4.3.7-4.3 2.5 0 1.6 1.3 2.7 3.1 2.7 2.2 0 3.7-1.3 3.7-4.1V10H29Z" fill="#25F4EE"/><path d="M27 10v21c0 6-4.3 9.9-10.2 9.9-5.2 0-9.3-3.5-9.3-8.7 0-5.5 4.5-9.1 10.5-8.7v6.2c-2.7-.4-4.3.7-4.3 2.5 0 1.6 1.3 2.7 3.1 2.7 2.2 0 3.7-1.3 3.7-4.1V10H27Z" fill="white"/></svg>`;
+  if (brand === "dc") return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#5865F2"/><path d="M16 17.2c5-2.2 11-2.2 16 0 2.3 3.3 3.4 7.1 3 11.4-3.1 2.3-6 3.6-8.7 4l-1.2-2.1c1.3-.4 2.5-1 3.6-1.7-3.1 1.3-6.3 1.3-9.5 0 1.1.7 2.3 1.3 3.6 1.7l-1.2 2.1c-2.7-.4-5.6-1.7-8.7-4-.3-4.3.8-8.1 3.1-11.4Z" fill="white"/><circle cx="20" cy="24" r="2" fill="#5865F2"/><circle cx="28" cy="24" r="2" fill="#5865F2"/></svg>`;
+  if (brand === "x")  return `<svg viewBox="0 0 48 48" width="${s}" height="${s}"><rect width="48" height="48" rx="12" fill="#050505"/><path d="M29.1 21.3 40.2 8h-5.1l-8.3 10-6.7-10H8l11.7 17.3L8 39.5h5.1l8.9-10.8 7.2 10.8h12.1L29.1 21.3Zm-3.2 3.9-2.1-3L15 11.8h2.6l7.1 10.1 2.1 3 9.3 13h-2.6l-7.6-12.7Z" fill="white"/></svg>`;
+  return "";
+}
+
+function appBadge(app, sz = 40) {
+  const is = Math.round(sz * 0.68);
+  const r  = Math.round(sz * 0.275);
+  return `<div style="width:${sz}px;height:${sz}px;flex-shrink:0;display:grid;place-items:center;border-radius:${r}px;background:#fff;overflow:hidden">${brandSVG(app.brand, is)}</div>`;
+}
+
+// ─── HELPER COMPONENTS ───────────────────────────────────────────────────────
+
+function t() { return TH[S.theme] || TH.dark; }
+
+function card(inner, extra = "") {
+  const c = t();
+  return `<div class="card" style="border-color:${c.bdr};background:${c.surf}${extra ? ';' + extra : ''}">${inner}</div>`;
+}
+
+function prog(val, col) {
+  const c = t();
+  return `<div class="prog" style="background:${c.surf2}"><div class="prog-fill" style="width:${Math.min(100, Math.max(0, val))}%;background:${col || c.acc}"></div></div>`;
+}
+
+function ring(val, sz) {
+  const c = t();
+  const r = 46, circ = 2 * Math.PI * r;
+  const off = circ - (val / 100) * circ;
+  return `<div class="ring-wrap" style="width:${sz}px;height:${sz}px">
+    <svg viewBox="0 0 120 120" width="${sz}" height="${sz}" style="transform:rotate(-90deg)">
+      <circle cx="60" cy="60" r="${r}" stroke="${c.surf2}" stroke-width="9" fill="none"/>
+      <circle cx="60" cy="60" r="${r}" stroke="${c.acc}" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
+    </svg>
+    <div class="ring-inner">
+      <div style="font-size:21px;font-weight:700;letter-spacing:-0.04em;color:${c.txt}">${val}%</div>
+      <div style="font-size:10px;color:${c.mut};margin-top:1px">of daily limit</div>
+      <div style="font-size:10px;color:${c.mut};margin-top:2px">8h 0m</div>
+    </div>
+  </div>`;
+}
+
+function topbar(title, eyebrow, status, rightIcon) {
+  const c = t();
+  return `<header class="topbar" style="border-color:${c.line};background:${c.bg}dd">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <div class="cm-badge" style="border-color:${c.bdr};background:${c.surf}">
+          <div class="cm-dot" style="background:${c.acc};border-color:${c.bg}"></div>
+          <span style="font-size:11px;font-weight:900;letter-spacing:-0.04em;color:${c.txt}">CM</span>
+        </div>
+        <div style="min-width:0">
+          <div class="cm-eyebrow" style="color:${c.mut}">${eyebrow}</div>
+          <div class="cm-title" style="color:${c.txt}">${title}</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="status-chip" style="border-color:${c.bdr};background:${c.surf};color:${c.acc}">${status}</div>
+        <button class="icon-btn" style="border-color:${c.bdr};background:${c.surf};color:${c.mut}">${ic(rightIcon)}</button>
+      </div>
+    </div>
+  </header>`;
+}
+
+function metricTile(label, val, sub, iconName) {
+  const c = t();
+  return card(`<div style="padding:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-height:98px">
+    <div>
+      <div style="font-size:12px;font-weight:500;color:${c.txt}">${label}</div>
+      <div style="font-size:28px;font-weight:700;letter-spacing:-0.05em;color:${c.txt};margin-top:6px;line-height:1">${val}</div>
+      <div style="font-size:12px;font-weight:500;color:${c.acc};margin-top:6px">${sub}</div>
+    </div>
+    <div style="width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:${c.surf2};color:${c.acc};flex-shrink:0">${ic(iconName, 18)}</div>
+  </div>`);
+}
+
+// ─── LINE CHART ──────────────────────────────────────────────────────────────
+
+function lineChart() {
+  const c = t();
+  const pts = [42, 35, 58, 54, 76, 55, 61, 29];
+  const path = pts.map((p, i) => {
+    const x = (i / (pts.length - 1)) * 100;
+    const y = 44 - (p / 100) * 44;
+    return (i === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1);
+  }).join(" ");
+  const dots = pts.map((p, i) => {
+    const x = (i / (pts.length - 1)) * 100;
+    const y = 44 - (p / 100) * 44;
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.4" fill="${c.page}" stroke="${c.acc}" stroke-width="1.2"/>`;
+  }).join("");
+  return `<svg viewBox="0 0 100 44" style="width:100%;height:148px;overflow:visible" preserveAspectRatio="none">
+    <path d="${path}" fill="none" stroke="${c.acc}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+  </svg>`;
+}
+
+// ─── PAGES ───────────────────────────────────────────────────────────────────
+
+function pageHome() {
+  const c = t();
+  return topbar("Dashboard", "ClearMind", "On track", "bell") + `
+  <div id="page-wrap">
+    <div class="fu fu1" style="margin-top:20px">
+      <div style="font-size:22px;font-weight:600;letter-spacing:-0.04em;color:${c.txt}">Good evening, Alex</div>
+      <div style="font-size:13px;color:${c.mut};margin-top:4px">Stay mindful. Live better.</div>
     </div>
 
-    <main id="view" class="view"></main>
+    <div class="fu fu2 mt3">${card(`<div style="padding:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:${c.txt}">Total Screen Time</div>
+        <div style="font-size:40px;font-weight:700;letter-spacing:-0.06em;color:${c.txt};margin-top:10px;line-height:1">4h 37m</div>
+        <div style="font-size:12px;color:${c.mut};margin-top:10px">Today, May 20</div>
+        <div style="display:inline-block;border-radius:99px;padding:4px 10px;font-size:11px;font-weight:500;background:${c.surf2};color:${c.acc};margin-top:8px">↓ Down 18% vs yesterday</div>
+      </div>
+      ${ring(57, 110)}
+    </div>`)}</div>
 
-    <nav id="tabbar" class="tabbar hidden" aria-label="Main navigation">
-      <button data-route="dashboard" class="tab active" aria-label="Home"><span class="ico home"></span><small>Home</small></button>
-      <button data-route="focus" class="tab" aria-label="Focus"><span class="ico target"></span><small>Focus</small></button>
-      <button data-route="insights" class="tab" aria-label="Insights"><span class="ico bars"></span><small>Insights</small></button>
-      <button data-route="report" class="tab" aria-label="Report"><span class="ico report"></span><small>Report</small></button>
-      <button data-route="settings" class="tab" aria-label="Settings"><span class="ico gear"></span><small>Settings</small></button>
-    </nav>
-  </div>
-  <div id="toast" class="toast" role="status"></div>
-  <script src="app.js"></script>
+    <div class="fu fu3 mt3">${card(`<div style="padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:500;color:${c.txt}">Daily Goal</div>
+          <div style="font-size:12px;color:${c.mut};margin-top:6px">You are on track. Keep it up.</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:24px;font-weight:700;letter-spacing:-0.04em;color:${c.txt};line-height:1">6h 0m</div>
+          <div style="font-size:11px;color:${c.mut};margin-top:3px">remaining</div>
+        </div>
+      </div>
+      <div style="margin-top:14px">${prog(58)}</div>
+    </div>`)}</div>
+
+    <div class="fu fu4 mt3 grid2">
+      ${metricTile("Pickups", "23", "↓ Down 15%", "home")}
+      ${metricTile("Unlocks", "45", "↓ Down 20%", "limits")}
+      ${metricTile("Focus Score", "82", "Great focus", "focus")}
+      ${metricTile("Sessions", "3", "↑ Up 1", "star")}
+    </div>
+
+    <div class="fu fu5 mt3">${card(`<div style="padding:15px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:${c.txt}">Bedtime Mode</div>
+        <div style="font-size:20px;font-weight:700;color:${c.txt};margin-top:5px;line-height:1">On</div>
+        <div style="font-size:12px;color:${c.mut};margin-top:5px">11:00 PM – 7:00 AM</div>
+      </div>
+      <div style="width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:${c.surf2};color:${c.acc}">${ic("clock", 22)}</div>
+    </div>`)}</div>
+
+    <div class="fu fu6 mt4">
+      <button class="btn-full" onclick="doNav('focus')" style="background:${c.acc}">
+        ${ic("focus", 18)} Start Focus Session
+      </button>
+    </div>
+  </div>`;
+}
+
+function pageInsights() {
+  const c = t();
+  const active = ITOTALS[S.irange];
+  return topbar("Insights", "Weekly report", "Improving", "calendar") + `
+  <div id="page-wrap">
+    <div class="fu fu1 mt4">
+      <div class="rtabs" style="background:${c.surf2}">
+        ${["Day","Week","Month","Year"].map(r => `<button class="rtab" onclick="upd({irange:'${r}'})" style="background:${S.irange===r?c.surf:'transparent'};color:${S.irange===r?c.txt:c.mut}">${r}</button>`).join("")}
+      </div>
+    </div>
+
+    <div class="fu fu2 mt3">${card(`<div style="padding:16px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.09em;color:${c.mut}">Screen Time</div>
+          <div style="font-size:32px;font-weight:700;letter-spacing:-0.05em;color:${c.txt};margin-top:6px">${active.time}</div>
+          <div style="font-size:13px;color:${c.acc};margin-top:4px">↓ ${active.chg}</div>
+        </div>
+        <button class="btn-pill" onclick="upd({imodal:true})" style="background:${c.acc};color:#fff;flex-shrink:0">Details</button>
+      </div>
+      <div style="margin-top:16px">${lineChart()}</div>
+    </div>`)}</div>
+
+    <div class="fu fu3 mt3">${card(`<div style="padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-weight:700;color:${c.txt}">Time by Category</div>
+        <button onclick="upd({imodal:true})" style="font-size:13px;font-weight:600;color:${c.acc}">Show all</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        ${CATS.map(cat => `<div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+            <span style="color:${c.txt}">${cat.name}</span>
+            <span style="color:${c.mut}">${cat.time} · ${cat.pct}%</span>
+          </div>
+          ${prog(cat.pct * 2.2, cat.col)}
+        </div>`).join("")}
+      </div>
+    </div>`)}</div>
+
+    <div class="fu fu4 mt3 grid2">
+      ${card(`<div style="padding:14px"><div style="font-size:11px;color:${c.mut}">Daily avg</div><div style="font-size:22px;font-weight:700;color:${c.txt};margin-top:6px">4h 36m</div></div>`)}
+      ${card(`<div style="padding:14px"><div style="font-size:11px;color:${c.mut}">Best day</div><div style="font-size:22px;font-weight:700;color:${c.txt};margin-top:6px">Tue</div></div>`)}
+    </div>
+  </div>`;
+}
+
+function pageFocus() {
+  const c = t();
+  const total = fTotal();
+  const pct   = fPct();
+  const tstr  = fStr();
+  const dashOff = (578 - (pct / 100) * 578).toFixed(1);
+  const presets = [
+    { name:"Deep Work", sub:"45 min · strict",   mins:45 },
+    { name:"Study",     sub:"25 min · balanced",  mins:25 },
+    { name:"Reading",   sub:"30 min · calm",      mins:30 }
+  ];
+  return topbar("Focus Mode", "Deep work", S.frun ? "Running" : "Ready", "settings") + `
+  <div id="page-wrap">
+    <div class="fu fu1 mt3">${card(`<div style="padding:16px;text-align:center">
+      <div style="display:inline-flex;align-items:center;gap:8px;border-radius:99px;border:1px solid ${c.bdr};background:${c.page};color:${c.acc};padding:5px 14px;font-size:12px;font-weight:600">
+        <span style="width:7px;height:7px;border-radius:50%;background:${S.frun?'#00ba7c':c.acc}"></span>
+        ${S.frun ? "Session running" : "Ready to lock in"}
+      </div>
+
+      <div class="focus-ring">
+        <div class="focus-glow" style="background:${c.surf2}"></div>
+        <svg viewBox="0 0 220 220" style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)">
+          <circle cx="110" cy="110" r="92" stroke="${c.surf2}" stroke-width="12" fill="none"/>
+          <circle id="f-ring" cx="110" cy="110" r="92" stroke="${c.acc}" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="578" stroke-dashoffset="${dashOff}" style="transition:stroke-dashoffset 0.6s"/>
+          <circle cx="110" cy="110" r="68" stroke="${c.line}" stroke-width="1" fill="none"/>
+        </svg>
+        <div style="position:relative;z-index:1;text-align:center">
+          <div id="f-time" class="focus-num" style="color:${c.txt}">${tstr}</div>
+          <div style="font-size:14px;color:${c.mut};margin-top:6px">${S.fpreset}</div>
+          <div id="f-pct" style="font-size:12px;font-weight:500;color:${c.acc};margin-top:8px">${pct}% session left</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
+        ${[["Left", `<span id="f-left">${Math.floor(S.fsec/60)}m</span>`], ["Blocked", "37"], ["Mode", "Strict"]].map(([l, v]) =>
+          `<div style="border-radius:14px;border:1px solid ${c.bdr};background:${c.page};padding:11px 6px;text-align:center">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:${c.mut}">${l}</div>
+            <div style="font-size:16px;font-weight:700;color:${c.txt};margin-top:4px">${v}</div>
+          </div>`).join("")}
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px">
+        <button class="btn-full" id="f-btn" onclick="${S.frun ? "doPause()" : "doStart()"}" style="background:${c.acc}">
+          ${ic(S.frun ? "pause" : "play", 18)} ${S.frun ? "Pause Session" : "Start Focus Session"}
+        </button>
+        <button class="btn-outline" onclick="doReset()" style="border-color:${c.bdr};color:${c.txt};background:${c.surf2};padding:15px 16px">Reset</button>
+      </div>
+    </div>`)}</div>
+
+    <div class="fu fu2 mt3" style="display:flex;flex-direction:column;gap:8px">
+      ${presets.map(p => {
+        const sel = S.fpreset === p.name;
+        return `<button class="preset" onclick="doPreset('${p.name}',${p.mins})" style="border-color:${sel?c.acc:c.bdr};background:${sel?c.surf2:c.surf}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:${c.txt}">${p.name}</div>
+              <div style="font-size:13px;color:${c.mut};margin-top:3px">${p.sub}</div>
+            </div>
+            ${sel ? `<div style="width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:${c.acc};color:#fff;flex-shrink:0">${ic("check", 14)}</div>` : ""}
+          </div>
+        </button>`;
+      }).join("")}
+    </div>
+
+    <div class="fu fu3 mt3">${card(`<div style="padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-weight:700;color:${c.txt}">Blocked Apps</div>
+          <div style="font-size:12px;color:${c.mut};margin-top:2px">Hidden until session ends.</div>
+        </div>
+        <button class="btn-pill" onclick="upd({fmodal:true})" style="background:${c.surf2};color:${c.acc}">+33 more</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+        ${APPS.map(a => `<div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          ${appBadge(a, 40)}
+          <span style="font-size:10px;color:${c.mut};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;text-align:center">${a.name}</span>
+        </div>`).join("")}
+      </div>
+    </div>`)}</div>
+
+    <div class="fu fu4 mt3">${card(`<div style="padding:16px">
+      <div style="font-weight:700;color:${c.txt};margin-bottom:10px">Focus Rules</div>
+      ${["Block social apps","Silence notifications","Save session to report"].map((item, i) =>
+        `<div style="display:flex;align-items:center;justify-content:space-between;${i ? "border-top:1px solid "+c.line+";" : ""}padding:12px 0">
+          <span style="font-size:14px;color:${c.txt}">${item}</span>
+          <div class="tog" style="background:${c.acc}"></div>
+        </div>`).join("")}
+    </div>`)}</div>
+  </div>`;
+}
+
+function pageLimits() {
+  const c = t();
+  return topbar("App Limits", "Rules", "5 active", "plus") + `
+  <div id="page-wrap">
+    <div class="fu fu1 mt3">${card(`<div style="padding:16px;display:flex;flex-direction:column;gap:18px">
+      ${APPS.map(a => `<div style="display:flex;align-items:center;gap:12px">
+        ${appBadge(a, 44)}
+        <div style="min-width:0;flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <span style="font-weight:600;color:${c.txt};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.name}</span>
+            <span style="font-size:13px;font-weight:600;color:${c.acc};flex-shrink:0">${a.left}</span>
+          </div>
+          <div style="font-size:11px;color:${c.mut};margin-top:2px">Daily limit · ${a.daily}</div>
+          <div style="margin-top:8px">${prog(a.pct)}</div>
+        </div>
+        <div style="color:${c.mut};font-size:20px;flex-shrink:0">›</div>
+      </div>`).join("")}
+    </div>`)}</div>
+
+    <div class="fu fu2 mt3">
+      <button onclick="haptic()" style="display:flex;align-items:center;gap:14px;width:100%;border-radius:22px;border:1px solid ${c.bdr};background:${c.surf};padding:16px;transition:transform 0.12s" ontouchstart="this.style.transform='scale(.98)'" ontouchend="this.style.transform='scale(1)'">
+        <span style="width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:${c.surf2};color:${c.mut};flex-shrink:0">${ic("plus")}</span>
+        <span>
+          <span style="display:block;font-weight:700;color:${c.txt}">Add Limit</span>
+          <span style="font-size:13px;color:${c.mut}">Set limit for a new app</span>
+        </span>
+      </button>
+    </div>
+  </div>`;
+}
+
+function pageProfile() {
+  const c = t();
+  return topbar("Profile", "Account", "Premium", "settings") + `
+  <div id="page-wrap">
+    <div class="fu fu1 mt3">${card(`<div style="padding:18px;display:flex;align-items:center;gap:14px">
+      <div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,${c.acc},#7856ff);flex-shrink:0;display:grid;place-items:center;font-size:22px;font-weight:800;color:#fff">A</div>
+      <div>
+        <div style="font-size:18px;font-weight:700;color:${c.txt}">Alex Morgan</div>
+        <div style="font-size:13px;color:${c.mut}">alex.morgan@email.com</div>
+        <div style="display:inline-block;margin-top:7px;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:700;background:${c.surf2};color:${c.acc}">⭐ Premium</div>
+      </div>
+    </div>`)}</div>
+
+    <div class="fu fu2 mt3">${card(`<div style="padding:18px">
+      <div style="font-weight:700;color:${c.txt};margin-bottom:12px">Appearance</div>
+      <div class="tsw" style="background:${c.surf2};border:1px solid ${c.bdr}">
+        ${Object.keys(TH).map(k => {
+          const sel = S.theme === k;
+          return `<button class="tsw-btn" onclick="upd({theme:'${k}'})" style="background:${sel?c.acc:'transparent'};color:${sel?'#fff':c.mut}">${TH[k].label}</button>`;
+        }).join("")}
+      </div>
+    </div>`)}</div>
+
+    <div class="fu fu3 mt3">${card(`<div style="padding:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-weight:700;color:${c.txt}">Weekly Goals</div>
+        <button style="font-size:13px;font-weight:600;color:${c.acc}">Edit</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        ${GOALS.map(g => `<div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+            <span style="color:${c.txt}">${g.label}</span>
+            <span style="color:${c.mut}">${g.val}</span>
+          </div>
+          ${prog(g.pct, g.col)}
+        </div>`).join("")}
+      </div>
+    </div>`)}</div>
+
+    <div class="fu fu4 mt3">${card(`<div style="padding:18px">
+      <div style="font-weight:700;color:${c.txt};margin-bottom:4px">Settings</div>
+      ${SETTINGS.map((item, i) =>
+        `<button onclick="haptic()" style="display:flex;align-items:center;justify-content:space-between;width:100%;${i?"border-top:1px solid "+c.line+";":""}padding:14px 0;color:${c.txt}">
+          <span style="font-size:15px">${item}</span>
+          <span style="color:${c.mut}">${ic("chevron", 18)}</span>
+        </button>`).join("")}
+    </div>`)}</div>
+
+    <div class="fu fu5 mt4">
+      <button class="btn-full" onclick="doInstall()" style="background:${c.acc}">
+        ${ic("shield", 18)} Add to Home Screen
+      </button>
+    </div>
+  </div>`;
+}
+
+// ─── FOCUS HELPERS ───────────────────────────────────────────────────────────
+
+function fTotal() { return S.fpreset === "Deep Work" ? 45*60 : S.fpreset === "Study" ? 25*60 : 30*60; }
+function fPct()   { return Math.max(0, Math.min(100, Math.round((S.fsec / fTotal()) * 100))); }
+function fStr()   {
+  const m = Math.floor(S.fsec / 60), s = S.fsec % 60;
+  return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
+
+function startTimer() {
+  stopTimer();
+  S.ftimer = setInterval(() => {
+    if (S.fsec <= 1) {
+      stopTimer();
+      haptic([10, 60, 20]);
+      upd({ fsec: 0, frun: false, fmodal: true });
+    } else {
+      S.fsec--;
+      // DOM fast-path — no full re-render
+      const ts = fStr(), p = fPct();
+      const el = document.getElementById("f-time"); if (el) el.textContent = ts;
+      const mt = document.getElementById("m-time"); if (mt) mt.textContent = ts;
+      const fr = document.getElementById("f-ring"); if (fr) fr.setAttribute("stroke-dashoffset", (578 - (p/100)*578).toFixed(1));
+      const fp = document.getElementById("f-pct");  if (fp) fp.textContent = p + "% session left";
+      const fl = document.getElementById("f-left"); if (fl) fl.textContent = Math.floor(S.fsec/60) + "m";
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (S.ftimer) { clearInterval(S.ftimer); S.ftimer = null; }
+}
+
+// ─── MODALS ──────────────────────────────────────────────────────────────────
+
+function drawModals() {
+  const c = t();
+  // Focus modal
+  const fm = document.getElementById("mod-focus");
+  const fs = document.getElementById("mod-focus-sheet");
+  const tstr = fStr();
+  fs.style.borderColor = c.bdr;
+  fs.style.background = c.surf;
+  fs.innerHTML = `
+    <div class="modal-handle" style="background:${c.bdr}"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
+      <div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:-0.03em;color:${c.txt}">${S.frun ? "Focus session started" : S.fsec === 0 ? "Session complete" : "Focus controls"}</div>
+        <div style="font-size:13px;color:${c.mut};margin-top:3px">${S.frun ? "Your apps are blocked." : "Manage current session."}</div>
+      </div>
+      <button onclick="closeModal('focus')" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${c.surf2};color:${c.mut};font-size:18px;flex-shrink:0">×</button>
+    </div>
+    <div style="border-radius:16px;padding:16px;text-align:center;background:${c.page}">
+      <div id="m-time" style="font-size:44px;font-weight:700;letter-spacing:-0.07em;color:${c.txt};font-variant-numeric:tabular-nums">${tstr}</div>
+      <div style="font-size:14px;color:${c.mut};margin-top:4px">${S.fpreset}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+      <button class="btn-full" onclick="${S.frun ? "doPause()" : "doStart()"}" style="border-radius:14px;padding:13px;background:${c.acc}">${S.frun ? "Pause" : "Start"}</button>
+      <button class="btn-outline" onclick="doReset()" style="border-radius:14px;border-color:${c.bdr};color:${c.txt}">Reset</button>
+    </div>`;
+  fm.className = "modal-bg" + (S.fmodal ? " open" : "");
+
+  // Insights modal
+  const im = document.getElementById("mod-insight");
+  const is = document.getElementById("mod-insight-sheet");
+  is.style.borderColor = c.bdr;
+  is.style.background = c.surf;
+  is.innerHTML = `
+    <div class="modal-handle" style="background:${c.bdr}"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:${c.txt}">Insight details</div>
+        <div style="font-size:13px;color:${c.mut};margin-top:3px">${S.irange} breakdown</div>
+      </div>
+      <button onclick="closeModal('insight')" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${c.surf2};color:${c.mut};font-size:18px;flex-shrink:0">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${CATS.map(cat => `<div style="border-radius:14px;border:1px solid ${c.bdr};background:${c.page};padding:13px">
+        <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px">
+          <span style="color:${c.txt}">${cat.name}</span><span style="color:${c.mut}">${cat.time}</span>
+        </div>
+        ${prog(cat.pct * 2.2, cat.col)}
+      </div>`).join("")}
+    </div>`;
+  im.className = "modal-bg" + (S.imodal ? " open" : "");
+}
+
+function closeModal(which) {
+  haptic([4]);
+  if (which === "focus")   upd({ fmodal: false });
+  if (which === "insight") upd({ imodal: false });
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+
+function drawNav() {
+  const c = t();
+  const el = document.getElementById("nav");
+  el.style.borderColor = c.line;
+  el.style.background  = c.bg + "ee";
+  document.getElementById("navrow").innerHTML = TABS.map(tab => {
+    const sel = S.tab === tab.id;
+    return `<button class="ntab${sel?" on":""}" onclick="doNav('${tab.id}')" style="color:${sel?c.acc:c.mut}">
+      ${ic(tab.id, 22)}
+      <span class="label">${tab.label}</span>
+      <span class="ntab-dot" style="background:${c.acc}"></span>
+    </button>`;
+  }).join("");
+}
+
+// ─── MAIN DRAW ───────────────────────────────────────────────────────────────
+
+let prevTab = "";
+
+function draw() {
+  const c = t();
+  applyTheme(c);
+  drawNav();
+
+  const scroller = document.getElementById("scroller");
+  scroller.style.background = c.page;
+
+  const tabChanged = S.tab !== prevTab;
+
+  let html = "";
+  if (S.tab === "insights") html = pageInsights();
+  else if (S.tab === "focus") html = pageFocus();
+  else if (S.tab === "limits") html = pageLimits();
+  else if (S.tab === "profile") html = pageProfile();
+  else html = pageHome();
+
+  const page = document.getElementById("page");
+  page.innerHTML = html;
+
+  if (tabChanged) scroller.scrollTop = 0;
+  prevTab = S.tab;
+
+  drawModals();
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+
+function doNav(id) {
+  if (id === S.tab) { document.getElementById("scroller").scrollTo({ top: 0, behavior: "smooth" }); return; }
+  haptic([4]);
+  upd({ tab: id });
+}
+
+function doPreset(name, mins) {
+  stopTimer();
+  haptic([4]);
+  upd({ fpreset: name, fsec: mins * 60, frun: false });
+}
+
+function doStart() {
+  if (S.fsec === 0) { S.fsec = fTotal(); }
+  haptic([6, 50, 10]);
+  upd({ frun: true, fmodal: true });
+  startTimer();
+}
+
+function doPause() { stopTimer(); haptic([4]); upd({ frun: false }); }
+
+function doReset() { stopTimer(); haptic([4]); upd({ frun: false, fsec: fTotal() }); }
+
+function haptic(p) { try { if (navigator.vibrate) navigator.vibrate(p || [5]); } catch(e){} }
+
+// ─── INSTALL ─────────────────────────────────────────────────────────────────
+
+function doInstall() {
+  haptic([8]);
+  if (S.deferred && typeof S.deferred.prompt === "function") {
+    S.deferred.prompt();
+    S.deferred.userChoice && S.deferred.userChoice.then(() => upd({ deferred: null }));
+    return;
+  }
+  showInstSheet();
+}
+
+function showInstSheet() {
+  const c = t();
+  const bg = document.getElementById("inst-bg");
+  const sh = document.getElementById("inst-sheet");
+  sh.style.background = c.surf;
+  sh.style.borderColor = c.bdr;
+  sh.innerHTML = `
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:56px;height:56px;border-radius:14px;background:#000;display:grid;place-items:center;margin:0 auto 12px;border:1px solid ${c.bdr}">
+        <span style="font-size:18px;font-weight:900;color:#1d9bf0">CM</span>
+      </div>
+      <div style="font-size:18px;font-weight:700;color:${c.txt}">Add to Home Screen</div>
+      <div style="font-size:13px;color:${c.mut};margin-top:6px;line-height:1.5">Use ClearMind like a native app — no browser bar, works offline</div>
+    </div>
+    <div style="background:${c.surf2};border-radius:16px;overflow:hidden;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px">
+        <span style="font-size:22px;flex-shrink:0">📱</span>
+        <div style="font-size:14px;color:${c.txt};line-height:1.4"><b>iPhone / iPad</b><br>Tap <b>Share</b> → <b>Add to Home Screen</b></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px;border-top:1px solid ${c.line}">
+        <span style="font-size:22px;flex-shrink:0">🤖</span>
+        <div style="font-size:14px;color:${c.txt};line-height:1.4"><b>Android</b><br>Tap <b>⋮ Menu</b> → <b>Install app</b></div>
+      </div>
+    </div>
+    <button onclick="closeInst()" style="width:100%;border-radius:16px;padding:14px;font-size:15px;font-weight:600;color:${c.txt};background:${c.surf2};border:1px solid ${c.bdr}">Got it</button>`;
+  requestAnimationFrame(() => requestAnimationFrame(() => bg.classList.add("open")));
+}
+
+function closeInst() {
+  document.getElementById("inst-bg").classList.remove("open");
+}
+
+// ─── SWIPE NAVIGATION ────────────────────────────────────────────────────────
+
+let tx0 = 0, ty0 = 0;
+const scr = document.getElementById("scroller");
+scr.addEventListener("touchstart", e => { tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY; }, { passive: true });
+scr.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx0;
+  const dy = e.changedTouches[0].clientY - ty0;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+    const idx = TABS.findIndex(tab => tab.id === S.tab);
+    if (dx < 0 && idx < TABS.length - 1) doNav(TABS[idx + 1].id);
+    else if (dx > 0 && idx > 0)          doNav(TABS[idx - 1].id);
+  }
+}, { passive: true });
+
+// Prevent safari overscroll bounce
+document.addEventListener("touchmove", e => {
+  if (!e.target.closest("#scroller, .modal-sheet, .inst-sheet")) e.preventDefault();
+}, { passive: false });
+
+// ─── PWA SETUP ───────────────────────────────────────────────────────────────
+
+function initPWA() {
+  const c = TH[S.theme] || TH.dark;
+
+  // Service worker for offline
+  if ("serviceWorker" in navigator) {
+    const sw = `const V='cm2';self.addEventListener('install',e=>e.waitUntil(caches.open(V)));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>new Response('<h1>Offline</h1>',{headers:{'Content-Type':'text/html'}})))))`;
+    const swBlob = new Blob([sw], { type: "application/javascript" });
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+  }
+
+  // Web manifest
+  const iconSvg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23000'/><text x='256' y='312' text-anchor='middle' font-size='176' font-family='-apple-system,sans-serif' font-weight='800' fill='%231d9bf0'>CM</text></svg>`);
+  const iconUrl = `data:image/svg+xml,${iconSvg}`;
+
+  const manifest = {
+    name: "ClearMind", short_name: "ClearMind",
+    description: "Mindful screen time tracking",
+    start_url: ".", display: "standalone",
+    orientation: "portrait-primary",
+    background_color: c.bg, theme_color: c.bg,
+    categories: ["health", "lifestyle"],
+    icons: [
+      { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" },
+      { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" }
+    ]
+  };
+  const mBlob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+  let ml = document.querySelector('link[rel="manifest"]');
+  if (!ml) { ml = document.createElement("link"); ml.rel = "manifest"; document.head.appendChild(ml); }
+  ml.href = URL.createObjectURL(mBlob);
+
+  // Apple touch icon
+  let ai = document.querySelector('link[rel="apple-touch-icon"]');
+  if (!ai) { ai = document.createElement("link"); ai.rel = "apple-touch-icon"; document.head.appendChild(ai); }
+  ai.href = iconUrl;
+
+  window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); S.deferred = e; upd({}); });
+  window.addEventListener("appinstalled", () => upd({ installed: true, deferred: null }));
+  if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) S.installed = true;
+}
+
+// ─── EXPOSE GLOBALS ──────────────────────────────────────────────────────────
+
+Object.assign(window, { upd, doNav, doPreset, doStart, doPause, doReset, haptic, doInstall, closeModal, closeInst, showInstSheet });
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+
+initPWA();
+applyTheme(TH[S.theme]);
+draw();
+</script>
 </body>
 </html>
