@@ -551,8 +551,8 @@ function pageFocus(){
   return topbar("Focus Mode","Deep work",S.frun?"Running":"Ready","settings")+`
   <div id="page-wrap">
     <div class="fu fu1 mt3">${card(`<div style="padding:16px;text-align:center">
-      <div style="display:inline-flex;align-items:center;gap:8px;border-radius:99px;border:1px solid ${t.bdr};background:${t.page};color:${t.acc};padding:5px 14px;font-size:12px;font-weight:600">
-        <span style="width:7px;height:7px;border-radius:50%;background:${S.frun?'#00ba7c':t.acc}"></span>
+      <div id="f-status-pill" style="display:inline-flex;align-items:center;gap:8px;border-radius:99px;border:1px solid ${t.bdr};background:${t.page};color:${t.acc};padding:5px 14px;font-size:12px;font-weight:600">
+        <span style="width:7px;height:7px;border-radius:50%;background:${S.frun?"#00ba7c":t.acc}"></span>
         ${S.frun?"Session running":"Ready to lock in"}
       </div>
       <div class="focus-ring">
@@ -563,7 +563,7 @@ function pageFocus(){
           <circle cx="110" cy="110" r="68" stroke="${t.line}" stroke-width="1" fill="none"/>
         </svg>
         <div style="position:relative;z-index:1;text-align:center">
-          <div id="f-time" class="focus-num" style="color:${t.txt}">${tstr}</div>
+          <div id="f-time" class="focus-num f-time-el" style="color:${t.txt}">${tstr}</div>
           <div class="focus-preset-label" style="font-size:14px;color:${t.mut};margin-top:6px">${S.fpreset}</div>
           <div id="f-pct" style="font-size:12px;font-weight:500;color:${t.acc};margin-top:8px">${pct}% session left</div>
         </div>
@@ -576,7 +576,7 @@ function pageFocus(){
           </div>`).join("")}
       </div>
       <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px">
-        <button class="btn-full" id="f-btn" onclick="${S.frun?"doPause()":"doStart()"}" style="background:${t.acc}">
+        <button class="btn-full" id="f-btn" style="background:${t.acc}">
           ${ic(S.frun?"pause":"play",18)} ${S.frun?"Pause Session":"Start Focus Session"}
         </button>
         <button class="btn-outline" onclick="doReset()" style="border-color:${t.bdr};color:${t.txt};background:${t.surf2};padding:15px 14px">Reset</button>
@@ -712,90 +712,123 @@ function pageProfile(){
 function fTotal(){return S.fpreset==="Deep Work"?45*60:S.fpreset==="Study"?25*60:30*60;}
 function fPct(){return Math.max(0,Math.min(100,Math.round((S.fsec/fTotal())*100)));}
 function fStr(){const m=Math.floor(S.fsec/60),s=S.fsec%60;return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");}
+// dashoffset: 0 = full ring (100% time left), 578 = empty ring (0% left)
+function fDash(){return (578-(fPct()/100)*578).toFixed(1);}
+
+// Update every focus-related DOM node without re-rendering the page
+function syncFocusDOM(){
+  const ts=fStr(), p=fPct(), dash=fDash(), minsLeft=Math.floor(S.fsec/60);
+  const col=TH[S.theme]||TH.dark;
+
+  // Time displays
+  document.querySelectorAll(".f-time-el").forEach(el=>el.textContent=ts);
+  // Ring
+  const fr=document.getElementById("f-ring");
+  if(fr) fr.setAttribute("stroke-dashoffset", dash);
+  // Pct label
+  const fp=document.getElementById("f-pct");
+  if(fp) fp.textContent=p+"% session left";
+  // Left tile
+  const fl=document.getElementById("f-left");
+  if(fl) fl.textContent=minsLeft+"m";
+  // Preset label inside ring
+  document.querySelectorAll(".focus-preset-label").forEach(l=>l.textContent=S.fpreset);
+
+  // Main button — remove onclick attr, set via property to avoid double-fire
+  const fb=document.getElementById("f-btn");
+  if(fb){
+    fb.removeAttribute("onclick");
+    fb.onclick= S.frun ? doPause : doStart;
+    fb.innerHTML=`${ic(S.frun?"pause":"play",18)} ${S.frun?"Pause Session":"Start Focus Session"}`;
+  }
+
+  // Status pill text
+  const sp=document.getElementById("f-status-pill");
+  if(sp){
+    sp.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${S.frun?"#00ba7c":col.acc}"></span> ${S.frun?"Session running":"Ready to lock in"}`;
+  }
+
+  // Modal time
+  const mt=document.getElementById("m-time");
+  if(mt) mt.textContent=ts;
+}
 
 function startTimer(){
   stopTimer();
   S.ftimer=setInterval(()=>{
     if(S.fsec<=1){
-      stopTimer();haptic([10,60,20]);
-      upd({fsec:0,frun:false,fmodal:true});
+      stopTimer();
+      haptic([10,60,20]);
+      S.fsec=0; S.frun=false;
+      syncFocusDOM();
+      // Show completion modal
+      const col=TH[S.theme]||TH.dark;
+      S.fmodal=true;
+      drawModals(col);
     } else {
       S.fsec--;
-      // Fast DOM update — no re-render
-      const ts=fStr(),p=fPct();
-      const el=document.getElementById("f-time");if(el)el.textContent=ts;
-      const mt=document.getElementById("m-time");if(mt)mt.textContent=ts;
-      const fr=document.getElementById("f-ring");if(fr)fr.setAttribute("stroke-dashoffset",(578-(p/100)*578).toFixed(1));
-      const fp=document.getElementById("f-pct");if(fp)fp.textContent=p+"% session left";
-      const fl=document.getElementById("f-left");if(fl)fl.textContent=Math.floor(S.fsec/60)+"m";
+      syncFocusDOM();
     }
   },1000);
 }
-function stopTimer(){if(S.ftimer){clearInterval(S.ftimer);S.ftimer=null;}}
+
+function stopTimer(){
+  if(S.ftimer){clearInterval(S.ftimer);S.ftimer=null;}
+}
 
 // ─── ACTIONS ─────────────────────────────────────────────────────────────────
 function doNav(id){
   if(id===S.tab){document.getElementById("scroller").scrollTo({top:0,behavior:"smooth"});return;}
-  haptic([4]);upd({tab:id});
+  haptic([4]);
+  upd({tab:id});
 }
 
 function doPreset(name,mins){
-  stopTimer();haptic([4]);
-  S.fpreset=name; S.fsec=mins*60; S.frun=false;
+  if(S.frun) return; // don't switch preset mid-session
+  stopTimer();
+  haptic([4]);
+  S.fpreset=name;
+  S.fsec=mins*60;
+  S.frun=false;
   const col=TH[S.theme]||TH.dark;
-  // Update preset buttons only — no page re-render
-  document.querySelectorAll('.preset').forEach(btn=>{
+  // Swap preset button styles
+  document.querySelectorAll(".preset").forEach(btn=>{
     const isThis=btn.dataset.preset===name;
     btn.style.borderColor=isThis?col.acc:col.bdr;
     btn.style.background=isThis?col.surf2:col.surf;
-    const chk=btn.querySelector('.preset-check');
-    if(chk)chk.style.display=isThis?'grid':'none';
+    const chk=btn.querySelector(".preset-check");
+    if(chk) chk.style.display=isThis?"grid":"none";
   });
-  // Update ring + time
-  const ts=fStr(),p=100;
-  const el=document.getElementById("f-time");if(el)el.textContent=ts;
-  const mn=document.getElementById("f-time");if(mn)mn.textContent=ts;
-  const fr=document.getElementById("f-ring");if(fr)fr.setAttribute("stroke-dashoffset","0");
-  const fp=document.getElementById("f-pct");if(fp)fp.textContent="100% session left";
-  const fl=document.getElementById("f-left");if(fl)fl.textContent=mins+"m";
-  document.querySelectorAll('.focus-preset-label').forEach(l=>l.textContent=name);
-  // Reset main btn
-  const fb=document.getElementById("f-btn");
-  if(fb){fb.onclick=doStart;fb.innerHTML=`${ic("play",18)} Start Focus Session`;}
-  // Sync modal
+  syncFocusDOM();
   drawModals(col);
 }
 
 function doStart(){
-  if(S.fsec===0)S.fsec=fTotal();
-  haptic([6,50,10]);S.frun=true;S.fmodal=true;
+  if(S.fsec<=0) S.fsec=fTotal();
+  haptic([6,50,10]);
+  S.frun=true;
+  syncFocusDOM();
   startTimer();
-  // Update button + status pill without re-render
   const col=TH[S.theme]||TH.dark;
-  const fb=document.getElementById("f-btn");
-  if(fb){fb.onclick=doPause;fb.innerHTML=`${ic("pause",18)} Pause Session`;}
   drawModals(col);
 }
 
 function doPause(){
-  stopTimer();haptic([4]);S.frun=false;
+  stopTimer();
+  haptic([4]);
+  S.frun=false;
+  syncFocusDOM();
   const col=TH[S.theme]||TH.dark;
-  const fb=document.getElementById("f-btn");
-  if(fb){fb.onclick=doStart;fb.innerHTML=`${ic("play",18)} Resume Session`;}
   drawModals(col);
 }
 
 function doReset(){
-  stopTimer();haptic([4]);S.frun=false;S.fsec=fTotal();
+  stopTimer();
+  haptic([4]);
+  S.frun=false;
+  S.fsec=fTotal();
+  syncFocusDOM();
   const col=TH[S.theme]||TH.dark;
-  const ts=fStr();
-  const el=document.getElementById("f-time");if(el)el.textContent=ts;
-  const mt=document.getElementById("m-time");if(mt)mt.textContent=ts;
-  const fr=document.getElementById("f-ring");if(fr)fr.setAttribute("stroke-dashoffset","0");
-  const fp=document.getElementById("f-pct");if(fp)fp.textContent="100% session left";
-  const fl=document.getElementById("f-left");if(fl)fl.textContent=Math.floor(S.fsec/60)+"m";
-  const fb=document.getElementById("f-btn");
-  if(fb){fb.onclick=doStart;fb.innerHTML=`${ic("play",18)} Start Focus Session`;}
   drawModals(col);
 }
 
@@ -1070,11 +1103,11 @@ function drawModals(t){
       <button onclick="closeModal('focus')" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px;flex-shrink:0">×</button>
     </div>
     <div style="border-radius:16px;padding:16px;text-align:center;background:${t.page}">
-      <div id="m-time" style="font-size:44px;font-weight:700;letter-spacing:-.07em;color:${t.txt};font-variant-numeric:tabular-nums">${tstr}</div>
+      <div id="m-time" class="f-time-el" style="font-size:44px;font-weight:700;letter-spacing:-.07em;color:${t.txt};font-variant-numeric:tabular-nums">${tstr}</div>
       <div style="font-size:14px;color:${t.mut};margin-top:4px">${S.fpreset}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
-      <button class="btn-row btn-full" onclick="${S.frun?"doPause()":"doStart()"}" style="background:${t.acc}">${S.frun?"Pause":"Resume"}</button>
+      <button id="m-main-btn" class="btn-row btn-full" style="background:${t.acc}">${S.frun?"Pause":"Resume"}</button>
       <button class="btn-row btn-outline" onclick="doReset();closeModal('focus')" style="border-color:${t.bdr};color:${t.txt}">End</button>
     </div>`;
   fm.className="modal-bg"+(S.fmodal?" open":"");
@@ -1101,6 +1134,7 @@ function drawModals(t){
       </div>`).join("")}
     </div>`;
   im.className="modal-bg"+(S.imodal?" open":"");
+  wireFocusBtn();
 }
 
 function closeModal(which){haptic([4]);if(which==="focus")upd({fmodal:false});else upd({imodal:false});}
@@ -1119,6 +1153,13 @@ function drawNav(t){
   }).join("");
 }
 
+function wireFocusBtn(){
+  const fb=document.getElementById("f-btn");
+  if(fb){fb.removeAttribute("onclick");fb.onclick=S.frun?doPause:doStart;}
+  const mb=document.getElementById("m-main-btn");
+  if(mb){mb.removeAttribute("onclick");mb.onclick=S.frun?doPause:doStart;}
+}
+
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 let prevTab="", prevTheme="";
 
@@ -1135,6 +1176,7 @@ function renderPage(t, tabChanged, themeChanged){
   if(wrap&&themeChanged&&!tabChanged) wrap.classList.add("no-anim");
   if(tabChanged) document.getElementById("scroller").scrollTop=0;
   prevTab=S.tab; prevTheme=S.theme;
+  wireFocusBtn();
 }
 
 // ─── MISC ACTIONS ─────────────────────────────────────────────────────────────
@@ -1200,7 +1242,7 @@ function initPWA(){
 }
 
 // ─── EXPOSE ──────────────────────────────────────────────────────────────────
-Object.assign(window,{upd,doNav,doPreset,doStart,doPause,doReset,haptic,doInstall,closeModal,closeInst,openNotif,closeNotif,openAddLimit,closeAddLimit,confirmAddLimit,pickMins,removeLimit,toggleRule,handleSetting,openProfileSheet});
+Object.assign(window,{upd,doNav,doPreset,doStart,doPause,doReset,haptic,doInstall,closeModal,closeInst,openNotif,closeNotif,openAddLimit,closeAddLimit,confirmAddLimit,pickMins,removeLimit,toggleRule,handleSetting,openProfileSheet,wireFocusBtn,syncFocusDOM});
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 initPWA();
