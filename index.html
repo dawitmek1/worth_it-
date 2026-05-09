@@ -73,7 +73,7 @@ input,select{font-family:inherit;outline:none;}
 /* Focus ring */
 .focus-ring{position:relative;width:230px;height:230px;margin:18px auto;display:grid;place-items:center;}
 .focus-glow{position:absolute;inset:28px;border-radius:50%;filter:blur(32px);}
-.focus-num{font-size:52px;font-weight:600;letter-spacing:-.09em;line-height:1;font-variant-numeric:tabular-nums;}
+.focus-num{font-size:52px;font-weight:500;letter-spacing:-.055em;line-height:1;font-variant-numeric:tabular-nums;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;}
 
 /* Toggle */
 .tog{width:46px;height:27px;border-radius:99px;position:relative;flex-shrink:0;transition:background .2s;}
@@ -151,26 +151,63 @@ input,select{font-family:inherit;outline:none;}
 
 
 /* Immersive Focus Screen */
-.focus-live{position:fixed;inset:0;z-index:90;display:none;overflow:hidden;background:radial-gradient(circle at 50% 20%,rgba(29,155,240,.28),transparent 34%),radial-gradient(circle at 10% 80%,rgba(120,86,255,.22),transparent 34%),#000;color:#fff;}
-.focus-live.open{display:block;animation:focusEnter .42s cubic-bezier(.2,.8,.2,1) both;}
-@keyframes focusEnter{from{opacity:0;transform:scale(1.03);filter:blur(10px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
-.focus-orb{position:absolute;width:360px;height:360px;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(29,155,240,.24),rgba(120,86,255,.12) 42%,transparent 68%);filter:blur(2px);animation:orbPulse 5.8s ease-in-out infinite;}
-.focus-orb.two{width:230px;height:230px;top:25%;left:78%;animation-duration:7.5s;opacity:.55;}
-.focus-orb.three{width:180px;height:180px;top:78%;left:16%;animation-duration:8.8s;opacity:.48;}
-@keyframes orbPulse{0%,100%{transform:translate(-50%,-50%) scale(.92)}50%{transform:translate(-50%,-50%) scale(1.08)}}
-.focus-live-inner{position:relative;z-index:2;height:100%;max-width:430px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 28px) 22px calc(env(safe-area-inset-bottom,0px) + 22px);display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;}
-.focus-live-chip{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;letter-spacing:.02em;}
-.focus-live-time{font-size:78px;font-weight:700;letter-spacing:-.09em;line-height:.95;font-variant-numeric:tabular-nums;text-shadow:0 10px 50px rgba(29,155,240,.34);}
-.focus-live-sub{font-size:14px;line-height:1.5;color:rgba(255,255,255,.68);margin-top:16px;}
-.focus-live-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.focus-live-btn{border-radius:18px;padding:15px 12px;font-size:14px;font-weight:800;color:#fff;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.10);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:transform .12s,background .12s;}
-.focus-live-btn:active{transform:scale(.96);background:rgba(255,255,255,.16);}
-.focus-live-end{background:rgba(249,24,128,.18);border-color:rgba(249,24,128,.35);}
+.focus-live{position:fixed;inset:0;z-index:90;display:none;overflow:hidden;color:#fff;background:#02040a;}
+.focus-live.open{display:block;animation:focusUniverseIn .9s cubic-bezier(.16,1,.3,1) both;}
+.focus-live::before{content:'';position:absolute;inset:-35%;background:
+  radial-gradient(circle at 50% 50%,rgba(255,255,255,.92) 0 1px,transparent 1.6px),
+  radial-gradient(circle at 18% 22%,rgba(255,255,255,.55) 0 1px,transparent 1.8px),
+  radial-gradient(circle at 78% 30%,rgba(255,255,255,.38) 0 1px,transparent 1.7px),
+  radial-gradient(circle at 28% 78%,rgba(255,255,255,.42) 0 1px,transparent 1.8px);
+  background-size:86px 86px,132px 132px,176px 176px,214px 214px;opacity:.32;animation:starDrift 28s linear infinite;transform-origin:center;}
+.focus-live::after{content:'';position:absolute;inset:0;background:
+  radial-gradient(circle at 50% 43%,rgba(29,155,240,.42),transparent 24%),
+  radial-gradient(circle at 30% 68%,rgba(120,86,255,.26),transparent 34%),
+  linear-gradient(180deg,rgba(4,9,20,.28),rgba(0,0,0,.96));pointer-events:none;}
+.focus-live.paused::after{background:radial-gradient(circle at 50% 43%,rgba(255,255,255,.10),transparent 22%),linear-gradient(180deg,rgba(10,12,18,.72),rgba(0,0,0,.98));}
+@keyframes focusUniverseIn{0%{opacity:0;transform:scale(1.18);filter:blur(18px) brightness(1.8)}45%{opacity:1;filter:blur(4px) brightness(1.28)}100%{opacity:1;transform:scale(1);filter:blur(0) brightness(1)}}
+@keyframes starDrift{from{transform:translate3d(0,0,0) rotate(0deg) scale(1.06)}to{transform:translate3d(-6%,7%,0) rotate(4deg) scale(1.13)}}
+.focus-warp{position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 46%,rgba(255,255,255,.20) 0 .22deg,transparent .28deg 7deg);mask-image:radial-gradient(circle at center,transparent 0 10%,#000 22%,transparent 65%);opacity:.18;animation:warpSpin 16s linear infinite;}
+@keyframes warpSpin{to{transform:rotate(360deg)}}
+.focus-orb{position:absolute;width:320px;height:320px;border-radius:50%;left:50%;top:48%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(255,255,255,.13),rgba(29,155,240,.20) 26%,rgba(120,86,255,.12) 48%,transparent 69%);filter:blur(8px);animation:orbPulse 6.5s ease-in-out infinite;}
+.focus-orb.two{width:170px;height:170px;top:22%;left:82%;animation-duration:8s;opacity:.46;}
+.focus-orb.three{width:150px;height:150px;top:83%;left:12%;animation-duration:9.2s;opacity:.38;}
+@keyframes orbPulse{0%,100%{transform:translate(-50%,-50%) scale(.94)}50%{transform:translate(-50%,-50%) scale(1.08)}}
+.focus-live-inner{position:relative;z-index:2;height:100%;max-width:430px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 26px) 20px calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;}
+.focus-live-top{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.focus-live-chip{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 18px 60px rgba(0,0,0,.26);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-radius:999px;padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.78);}
+.focus-live-status{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);}
+.focus-live-core{width:100%;transform:translateY(-5px);}
+.focus-live-time{font-size:82px;font-weight:480;letter-spacing:-.065em;line-height:.9;font-variant-numeric:tabular-nums;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;text-shadow:0 18px 70px rgba(29,155,240,.34),0 2px 0 rgba(255,255,255,.06);}
+.focus-live-sub{font-size:13px;line-height:1.55;color:rgba(255,255,255,.58);margin-top:18px;max-width:270px;margin-left:auto;margin-right:auto;}
+.focus-mini-actions{display:flex;justify-content:center;gap:8px;margin-top:24px;}
+.focus-mini-btn{border-radius:999px;padding:9px 12px;font-size:12px;font-weight:800;color:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+.focus-control-row{width:100%;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;}
+.focus-icon-btn{width:66px;height:66px;border-radius:24px;display:grid;place-items:center;color:#05070d;background:rgba(255,255,255,.92);box-shadow:0 22px 70px rgba(29,155,240,.25),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .14s cubic-bezier(.34,1.56,.64,1),filter .14s;}
+.focus-icon-btn:active{transform:scale(.92);filter:brightness(.9);}
+.focus-side-btn{height:48px;border-radius:18px;padding:0 12px;font-size:12px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.74);border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform .12s,background .12s;}
+.focus-side-btn:active{transform:scale(.96);background:rgba(255,255,255,.11);}
+.focus-live-end{color:#ff8fbf;border-color:rgba(249,24,128,.24);background:rgba(249,24,128,.08);}
+.focus-pause-note{font-size:12px;color:rgba(255,255,255,.48);margin-top:15px;min-height:18px;}
 .fire-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
 .fire-day{border-radius:15px;border:1px solid;padding:9px 2px;text-align:center;}
 .fire-emoji{font-size:21px;line-height:1;filter:grayscale(1);opacity:.38;transition:filter .25s,opacity .25s,transform .25s;}
 .fire-day.on .fire-emoji{filter:none;opacity:1;transform:translateY(-1px) scale(1.08);text-shadow:0 0 18px rgba(255,149,0,.55);}
 .fire-label{font-size:9px;font-weight:800;margin-top:6px;letter-spacing:.03em;}
+
+
+/* Persistent minimized focus banner */
+.focus-dock{position:fixed;left:12px;right:12px;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:35;display:none;max-width:430px;margin:0 auto;pointer-events:none;}
+.focus-dock.open{display:block;animation:focusDockIn .28s cubic-bezier(.16,1,.3,1) both;}
+@keyframes focusDockIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.focus-dock-card{pointer-events:auto;border-radius:22px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(135deg,rgba(9,13,24,.94),rgba(13,18,32,.88));box-shadow:0 18px 55px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);padding:12px;display:flex;align-items:center;gap:12px;color:#fff;}
+.focus-dock-pulse{width:40px;height:40px;border-radius:15px;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.75),rgba(29,155,240,.55) 18%,rgba(120,86,255,.26) 56%,rgba(255,255,255,.06));box-shadow:0 0 24px rgba(29,155,240,.32);position:relative;flex-shrink:0;}
+.focus-dock-pulse::after{content:'';position:absolute;inset:9px;border-radius:50%;background:rgba(255,255,255,.78);animation:focusDockPulse 1.8s ease-in-out infinite;}
+@keyframes focusDockPulse{0%,100%{transform:scale(.72);opacity:.62}50%{transform:scale(1);opacity:1}}
+.focus-dock-title{font-size:11px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);}
+.focus-dock-time{font-size:22px;font-weight:500;letter-spacing:-.045em;line-height:1.05;font-variant-numeric:tabular-nums;color:#fff;}
+.focus-dock-action{border-radius:15px;padding:10px 12px;font-size:12px;font-weight:850;color:#06101f;background:rgba(255,255,255,.92);box-shadow:inset 0 1px 0 rgba(255,255,255,.7);}
+.focus-dock-paused .focus-dock-pulse::after{animation:none;opacity:.45;}
+.focus-dock-paused .focus-dock-card{background:linear-gradient(135deg,rgba(18,18,22,.95),rgba(9,10,13,.9));}
 
 </style>
 </head>
@@ -183,6 +220,7 @@ input,select{font-family:inherit;outline:none;}
   <div class="modal-bg" id="mod-insight" onclick="if(event.target===this)closeModal('insight')"><div class="modal-sheet" id="mod-insight-sheet"></div></div>
   <div class="modal-bg" id="mod-focus-detail" onclick="if(event.target===this)closeFocusDetail()"><div class="modal-sheet" id="mod-focus-detail-sheet"></div></div>
   <div class="focus-live" id="focus-live"></div>
+  <div class="focus-dock" id="focus-dock"></div>
   <div class="inst-bg" id="inst-bg" onclick="if(event.target===this)closeInst()"><div class="inst-sheet" id="inst-sheet"></div></div>
   <div class="notif-panel" id="notif-panel" onclick="if(event.target===this)closeNotif()"><div class="notif-inner" id="notif-inner"></div></div>
   <div class="add-limit-bg" id="add-limit-bg" onclick="if(event.target===this)closeAddLimit()"><div class="add-limit-sheet" id="add-limit-sheet"></div></div>
@@ -281,6 +319,7 @@ function upd(patch){
     }
     renderPage(col, tabChanged, themeChanged);
     drawModals(col);
+    drawFocusDock(col);
   });
 }
 
@@ -820,16 +859,9 @@ function focusWeekDays(){
   const now=new Date();
   const day=(now.getDay()+6)%7; // Monday = 0
   const monday=new Date(now);monday.setHours(0,0,0,0);monday.setDate(now.getDate()-day);
-  const hist=S.fhistory||[];
-  const lit=new Set(hist.filter(h=>h.dateKey).map(h=>h.dateKey));
+  const lit=new Set((S.fhistory||[]).filter(h=>h.dateKey).map(h=>h.dateKey));
   const labels=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-  const todayKey=focusDateKey(now);
-  return labels.map((label,i)=>{
-    const d=new Date(monday);d.setDate(monday.getDate()+i);
-    const key=focusDateKey(d);
-    const legacyLit=hist.some(h=>!h.dateKey && (h.when===label || (h.when==="Today"&&key===todayKey)));
-    return {label,key,on:lit.has(key)||legacyLit,today:key===todayKey};
-  });
+  return labels.map((label,i)=>{const d=new Date(monday);d.setDate(monday.getDate()+i);const key=focusDateKey(d);return {label,key,on:lit.has(key),today:key===focusDateKey(now)};});
 }
 function persistFocusData(){
   try{localStorage.setItem("cm_focus_data",JSON.stringify({fhistory:S.fhistory,flastSummary:S.flastSummary}));}catch(e){}
@@ -908,6 +940,7 @@ function syncFocusDOM(){
   // Modal time
   const mt=document.getElementById("m-time");
   if(mt) mt.textContent=ts;
+  drawFocusDock(col);
 }
 
 function startTimer(){
@@ -975,11 +1008,6 @@ function doStart(){
   drawModals(c());
 }
 
-function cancelStartFocus(){
-  S.fstartConfirm=false;
-  drawModals(c());
-}
-
 function beginFocusSession(){
   if(S.fsec<=0) S.fsec=fTotal();
   if(!S.fsessionStartSec){S.fsessionStartSec=S.fsec;S.fsessionStartedAt=Date.now();}
@@ -991,6 +1019,7 @@ function beginFocusSession(){
   startTimer();
   drawModals(c());
   drawFocusLive(c());
+  drawFocusDock(c());
 }
 
 function addFocusTime(mins){
@@ -1003,18 +1032,21 @@ function addFocusTime(mins){
 
 function exitFocusLive(){
   S.fimmersive=false;
-  drawFocusLive(c());
+  const col=c();
+  drawFocusLive(col);
+  drawFocusDock(col);
 }
 
 function doPause(){
   stopTimer();
   haptic([4]);
   S.frun=false;
-  S.fimmersive=false;
+  S.fimmersive=true; // stay inside the immersive focus screen while paused
   syncFocusDOM();
   const col=TH[S.theme]||TH.dark;
   drawModals(col);
   drawFocusLive(col);
+  drawFocusDock(col);
 }
 
 function doReset(){
@@ -1303,31 +1335,62 @@ function drawNotif(t){
 
 
 // ─── FOCUS DETAIL & LIVE SCREEN ─────────────────────────────────────────────
+
+function focusIsActive(){return S.frun || (S.fsessionStartSec>0 && S.fsessionStartSec>S.fsec);}
+function restoreFocusLive(){
+  if(!focusIsActive())return;
+  S.fimmersive=true;
+  const col=c();
+  drawFocusLive(col);
+  drawFocusDock(col);
+}
+function drawFocusDock(t){
+  const el=document.getElementById("focus-dock");
+  if(!el)return;
+  if(!focusIsActive() || S.fimmersive){el.className="focus-dock";el.innerHTML="";return;}
+  const paused=!S.frun;
+  el.className="focus-dock open"+(paused?" focus-dock-paused":"");
+  el.innerHTML=`
+    <div class="focus-dock-card">
+      <div class="focus-dock-pulse"></div>
+      <div style="flex:1;min-width:0;text-align:left">
+        <div class="focus-dock-title">${paused?"Focus paused":"Focus running"}</div>
+        <div class="focus-dock-time f-time-el">${fStr()}</div>
+      </div>
+      <button class="focus-dock-action" onclick="restoreFocusLive()">Return</button>
+    </div>`;
+}
 function drawFocusLive(t){
   const el=document.getElementById("focus-live");
   if(!el)return;
   if(!S.fimmersive){el.className="focus-live";el.innerHTML="";return;}
-  el.className="focus-live open";
+  const paused=!S.frun;
+  el.className="focus-live open"+(paused?" paused":"");
   el.innerHTML=`
-    <div class="focus-orb"></div><div class="focus-orb two"></div><div class="focus-orb three"></div>
+    <div class="focus-warp"></div><div class="focus-orb"></div><div class="focus-orb two"></div><div class="focus-orb three"></div>
     <div class="focus-live-inner">
-      <div>
-        <div class="focus-live-chip">${S.fpreset} · ${S.fblocked.length} apps blocked</div>
-        <div style="font-size:13px;color:rgba(255,255,255,.62);margin-top:14px">Focus mode is active</div>
+      <div class="focus-live-top">
+        <div class="focus-live-chip">${S.fpreset}</div>
+        <div class="focus-live-status">${paused?"Paused":"Focus Active"}</div>
       </div>
-      <div>
+      <div class="focus-live-core">
         <div class="focus-live-time f-time-el">${fStr()}</div>
-        <div class="focus-live-sub">Stay here. Everything else can wait.</div>
+        <div class="focus-live-sub">${paused?"You are paused, but still inside focus mode.":"Stay inside the zone. Everything else can wait."}</div>
+        <div class="focus-mini-actions">
+          <button class="focus-mini-btn" onclick="addFocusTime(5)">+5</button>
+          <button class="focus-mini-btn" onclick="addFocusTime(15)">+15</button>
+          <button class="focus-mini-btn">${S.fblocked.length} blocked</button>
+        </div>
       </div>
       <div style="width:100%">
-        <div class="focus-live-actions">
-          <button class="focus-live-btn" onclick="addFocusTime(5)">+5 min</button>
-          <button class="focus-live-btn" onclick="addFocusTime(15)">+15 min</button>
+        <div class="focus-control-row">
+          <button class="focus-side-btn focus-live-end" onclick="doEndSession()">End</button>
+          <button class="focus-icon-btn" onclick="${S.frun?'doPause()':'doStart()'}" aria-label="${S.frun?'Pause':'Resume'}">
+            ${ic(S.frun?"pause":"play",30)}
+          </button>
+          <button class="focus-side-btn" onclick="exitFocusLive()">Minimize</button>
         </div>
-        <div class="focus-live-actions" style="margin-top:10px">
-          <button class="focus-live-btn" onclick="doPause()">Pause</button>
-          <button class="focus-live-btn focus-live-end" onclick="doEndSession()">End session</button>
-        </div>
+        <div class="focus-pause-note">${paused?"Tap play to continue the session.":"One clean screen. No distractions."}</div>
       </div>
     </div>`;
 }
@@ -1374,17 +1437,17 @@ function drawModals(t){
     fs.innerHTML=`
     <div class="modal-handle" style="background:${t.bdr}"></div>
     <div style="text-align:center;padding:4px 0 8px">
-      <div style="width:58px;height:58px;border-radius:22px;background:${t.surf2};display:grid;place-items:center;margin:0 auto 13px;font-size:28px">🛡️</div>
-      <div style="font-size:19px;font-weight:800;color:${t.txt}">Block everything and start?</div>
-      <div style="font-size:14px;color:${t.mut};line-height:1.5;margin-top:8px">ClearMind will enter a quiet focus screen and keep your blocked apps out of sight.</div>
+      <div style="width:66px;height:66px;border-radius:24px;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.22),transparent 35%),linear-gradient(135deg,${t.acc},#7856ff);display:grid;place-items:center;margin:0 auto 14px;color:#fff;box-shadow:0 20px 60px rgba(29,155,240,.25)">${ic("focus",30)}</div>
+      <div style="font-size:20px;font-weight:850;letter-spacing:-.04em;color:${t.txt}">Enter Focus Universe?</div>
+      <div style="font-size:14px;color:${t.mut};line-height:1.5;margin-top:8px">Blocked apps fade out. The timer becomes the only thing on screen.</div>
     </div>
-    <div style="border-radius:16px;background:${t.page};border:1px solid ${t.bdr};padding:13px;margin-top:12px">
-      <div style="display:flex;justify-content:space-between;font-size:14px;color:${t.txt}"><span>${S.fpreset}</span><b>${Math.floor(S.fsec/60)} min</b></div>
-      <div style="font-size:12px;color:${t.mut};margin-top:5px">${S.fblocked.length} apps blocked · strict focus screen</div>
+    <div style="border-radius:18px;background:${t.page};border:1px solid ${t.bdr};padding:14px;margin-top:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)">
+      <div style="display:flex;justify-content:space-between;font-size:14px;color:${t.txt}"><span style="font-weight:800">${S.fpreset}</span><b>${Math.floor(S.fsec/60)} min</b></div>
+      <div style="font-size:12px;color:${t.mut};margin-top:6px">${S.fblocked.length} apps blocked · immersive focus screen</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
-      <button class="btn-row btn-outline" onclick="cancelStartFocus()" style="border-color:${t.bdr};color:${t.txt};background:${t.surf2}">Cancel</button>
-      <button class="btn-row btn-full" onclick="beginFocusSession()" style="background:${t.acc}">Start Focus</button>
+    <div style="display:grid;grid-template-columns:.85fr 1.15fr;gap:10px;margin-top:14px">
+      <button class="btn-row btn-outline" onclick="S.fstartConfirm=false;drawModals(c())" style="border-color:${t.bdr};color:${t.txt};background:${t.surf2}">Cancel</button>
+      <button class="btn-row btn-full" onclick="beginFocusSession()" style="background:linear-gradient(135deg,${t.acc},#7856ff);box-shadow:0 14px 34px rgba(29,155,240,.22)">Enter Focus</button>
     </div>`;
   } else {
     const tstr=fStr();
@@ -1433,6 +1496,7 @@ function drawModals(t){
   wireFocusBtn();
   drawFocusDetail(t);
   drawFocusLive(t);
+  drawFocusDock(t);
 }
 
 function closeModal(which){haptic([4]);if(which==="focus"){S.fstartConfirm=false;upd({fmodal:false});}else upd({imodal:false});}
@@ -1475,6 +1539,7 @@ function renderPage(t, tabChanged, themeChanged){
   if(tabChanged) document.getElementById("scroller").scrollTop=0;
   prevTab=S.tab; prevTheme=S.theme;
   wireFocusBtn();
+  drawFocusDock(t);
 }
 
 // ─── MISC ACTIONS ─────────────────────────────────────────────────────────────
@@ -1540,7 +1605,7 @@ function initPWA(){
 }
 
 // ─── EXPOSE ──────────────────────────────────────────────────────────────────
-Object.assign(window,{upd,doNav,doPreset,doStart,cancelStartFocus,beginFocusSession,addFocusTime,exitFocusLive,doPause,doReset,doEndSession,haptic,doInstall,closeModal,closeInst,openNotif,closeNotif,openFocusDetail,closeFocusDetail,goFocusInsights,openAddLimit,closeAddLimit,confirmAddLimit,pickMins,removeLimit,toggleRule,handleSetting,openProfileSheet,wireFocusBtn,syncFocusDOM});
+Object.assign(window,{upd,doNav,doPreset,doStart,beginFocusSession,addFocusTime,exitFocusLive,doPause,doReset,doEndSession,haptic,doInstall,closeModal,closeInst,openNotif,closeNotif,openFocusDetail,closeFocusDetail,goFocusInsights,openAddLimit,closeAddLimit,confirmAddLimit,pickMins,removeLimit,toggleRule,handleSetting,openProfileSheet,wireFocusBtn,syncFocusDOM});
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 loadFocusData();
