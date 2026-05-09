@@ -11,19 +11,20 @@
 <title>ClearMind</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;margin:0;padding:0;overflow:hidden;}
+:root{--nav-h:68px;}
+html,body{height:100%;margin:0;padding:0;overflow:hidden;background:#000000;}
 body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
 button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-appearance:none;outline:none;}
 input,select{font-family:inherit;outline:none;}
 
 /* Shell */
-#shell{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;overflow:hidden;}
-#scroller{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;}
+#shell{position:fixed;inset:0;display:block;overflow:hidden;background:var(--bg,#000000);}
+#scroller{position:absolute;top:0;left:0;right:0;bottom:var(--nav-h);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;background:var(--page,#000000);}
 #scroller::-webkit-scrollbar{display:none;}
 
-/* Nav */
-#nav{flex-shrink:0;border-top:1px solid;}
-.nav-inner{max-width:430px;margin:0 auto;display:flex;padding:6px 4px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 6px);}
+/* Nav — locked to the absolute bottom so no sheet/safe-area curve can appear below it */
+#nav{position:absolute;left:0;right:0;bottom:0;height:var(--nav-h);z-index:80;border-top:1px solid;background:var(--bg,#000000);padding-bottom:env(safe-area-inset-bottom,0px);}
+.nav-inner{max-width:430px;height:100%;margin:0 auto;display:flex;align-items:center;padding:6px 4px;}
 .ntab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;border-radius:12px;transition:transform .15s cubic-bezier(.34,1.56,.64,1);position:relative;}
 .ntab:active{transform:scale(.85);}
 .ntab .lbl{font-size:10px;font-weight:500;}
@@ -93,14 +94,14 @@ input,select{font-family:inherit;outline:none;}
 .tsw-btn{border-radius:99px;padding:8px;font-size:11px;font-weight:600;transition:background .15s,color .15s;}
 
 /* Modal */
-.modal-bg{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0 12px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(0,0,0,0);pointer-events:none;transition:background .28s;}
+.modal-bg{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0 12px;padding-bottom:calc(var(--nav-h) + 12px);background:rgba(0,0,0,0);pointer-events:none;transition:background .28s;}
 .modal-bg.open{background:rgba(0,0,0,.56);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);pointer-events:all;}
 .modal-sheet{width:100%;max-width:430px;border-radius:28px;border:1px solid;padding:20px;transform:translateY(110%);transition:transform .34s cubic-bezier(.32,.72,0,1);box-shadow:0 -8px 48px rgba(0,0,0,.4);}
 .modal-bg.open .modal-sheet{transform:translateY(0);}
 .modal-handle{width:36px;height:4px;border-radius:99px;margin:0 auto 16px;}
 
 /* Install sheet */
-.inst-bg{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;padding:0 12px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(0,0,0,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .25s;}
+.inst-bg{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;padding:0 12px;padding-bottom:calc(var(--nav-h) + 12px);background:rgba(0,0,0,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .25s;}
 .inst-bg.open{opacity:1;pointer-events:all;}
 .inst-sheet{width:100%;max-width:430px;border-radius:28px;border:1px solid;padding:24px;transform:translateY(100%);transition:transform .34s cubic-bezier(.32,.72,0,1);}
 .inst-bg.open .inst-sheet{transform:translateY(0);}
@@ -112,7 +113,7 @@ input,select{font-family:inherit;outline:none;}
 .notif-panel.open .notif-inner{transform:translateY(0);opacity:1;}
 
 /* Add limit modal */
-.add-limit-bg{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0 12px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(0,0,0,0);pointer-events:none;transition:background .28s;}
+.add-limit-bg{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:0 12px;padding-bottom:calc(var(--nav-h) + 12px);background:rgba(0,0,0,0);pointer-events:none;transition:background .28s;}
 .add-limit-bg.open{background:rgba(0,0,0,.56);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);pointer-events:all;}
 .add-limit-sheet{width:100%;max-width:430px;border-radius:28px;border:1px solid;padding:20px;transform:translateY(110%);transition:transform .34s cubic-bezier(.32,.72,0,1);}
 .add-limit-bg.open .add-limit-sheet{transform:translateY(0);}
@@ -147,6 +148,30 @@ input,select{font-family:inherit;outline:none;}
 .prf-install:active { transform: scale(.97); filter: brightness(.88); }
 .prf-signout { transition: transform .12s cubic-bezier(.34,1.56,.64,1); }
 .prf-signout:active { transform: scale(.97); }
+
+
+/* Immersive Focus Screen */
+.focus-live{position:fixed;inset:0;z-index:90;display:none;overflow:hidden;background:radial-gradient(circle at 50% 20%,rgba(29,155,240,.28),transparent 34%),radial-gradient(circle at 10% 80%,rgba(120,86,255,.22),transparent 34%),#000;color:#fff;}
+.focus-live.open{display:block;animation:focusEnter .42s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes focusEnter{from{opacity:0;transform:scale(1.03);filter:blur(10px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
+.focus-orb{position:absolute;width:360px;height:360px;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(29,155,240,.24),rgba(120,86,255,.12) 42%,transparent 68%);filter:blur(2px);animation:orbPulse 5.8s ease-in-out infinite;}
+.focus-orb.two{width:230px;height:230px;top:25%;left:78%;animation-duration:7.5s;opacity:.55;}
+.focus-orb.three{width:180px;height:180px;top:78%;left:16%;animation-duration:8.8s;opacity:.48;}
+@keyframes orbPulse{0%,100%{transform:translate(-50%,-50%) scale(.92)}50%{transform:translate(-50%,-50%) scale(1.08)}}
+.focus-live-inner{position:relative;z-index:2;height:100%;max-width:430px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 28px) 22px calc(env(safe-area-inset-bottom,0px) + 22px);display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;}
+.focus-live-chip{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;letter-spacing:.02em;}
+.focus-live-time{font-size:78px;font-weight:700;letter-spacing:-.09em;line-height:.95;font-variant-numeric:tabular-nums;text-shadow:0 10px 50px rgba(29,155,240,.34);}
+.focus-live-sub{font-size:14px;line-height:1.5;color:rgba(255,255,255,.68);margin-top:16px;}
+.focus-live-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.focus-live-btn{border-radius:18px;padding:15px 12px;font-size:14px;font-weight:800;color:#fff;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.10);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:transform .12s,background .12s;}
+.focus-live-btn:active{transform:scale(.96);background:rgba(255,255,255,.16);}
+.focus-live-end{background:rgba(249,24,128,.18);border-color:rgba(249,24,128,.35);}
+.fire-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.fire-day{border-radius:15px;border:1px solid;padding:9px 2px;text-align:center;}
+.fire-emoji{font-size:21px;line-height:1;filter:grayscale(1);opacity:.38;transition:filter .25s,opacity .25s,transform .25s;}
+.fire-day.on .fire-emoji{filter:none;opacity:1;transform:translateY(-1px) scale(1.08);text-shadow:0 0 18px rgba(255,149,0,.55);}
+.fire-label{font-size:9px;font-weight:800;margin-top:6px;letter-spacing:.03em;}
+
 </style>
 </head>
 <body>
@@ -156,6 +181,8 @@ input,select{font-family:inherit;outline:none;}
   <!-- Modals inside shell so nothing leaks below nav -->
   <div class="modal-bg" id="mod-focus" onclick="if(event.target===this)closeModal('focus')"><div class="modal-sheet" id="mod-focus-sheet"></div></div>
   <div class="modal-bg" id="mod-insight" onclick="if(event.target===this)closeModal('insight')"><div class="modal-sheet" id="mod-insight-sheet"></div></div>
+  <div class="modal-bg" id="mod-focus-detail" onclick="if(event.target===this)closeFocusDetail()"><div class="modal-sheet" id="mod-focus-detail-sheet"></div></div>
+  <div class="focus-live" id="focus-live"></div>
   <div class="inst-bg" id="inst-bg" onclick="if(event.target===this)closeInst()"><div class="inst-sheet" id="inst-sheet"></div></div>
   <div class="notif-panel" id="notif-panel" onclick="if(event.target===this)closeNotif()"><div class="notif-inner" id="notif-inner"></div></div>
   <div class="add-limit-bg" id="add-limit-bg" onclick="if(event.target===this)closeAddLimit()"><div class="add-limit-sheet" id="add-limit-sheet"></div></div>
@@ -212,6 +239,14 @@ const S = {
   deferred:null, installed:false,
   // focus — never triggers full page re-render while running
   fsec:45*60, frun:false, fpreset:"Deep Work", fmodal:false, ftimer:null,
+  fstartConfirm:false, fdetailModal:false, fimmersive:false,
+  fsessionStartSec:0, fsessionStartedAt:null, flastSummary:null,
+  fhistory:[
+    {name:"Deep Work",mins:45,score:94,apps:5,done:true,when:"Today"},
+    {name:"Study",mins:25,score:88,apps:4,done:true,when:"Yesterday"},
+    {name:"Reading",mins:30,score:91,apps:3,done:true,when:"Mon"}
+  ],
+  fstreak:3,
   // focus rules toggles
   frules:{social:true,notifs:true,save:true},
   // focus blocked apps (indices into APPS_DATA)
@@ -258,7 +293,17 @@ function applyTheme(c){
   const sh=document.getElementById('shell'); sh.style.background=c.bg;
   document.getElementById('scroller').style.background=c.page;
   document.getElementById('nav').style.background=c.bg;
+  syncNavHeight();
 }
+function syncNavHeight(){
+  const nav=document.getElementById('nav');
+  if(!nav) return;
+  // Keep the scroll area ending exactly above the rendered nav, including iOS safe-area.
+  const h=Math.ceil(nav.getBoundingClientRect().height || 68);
+  document.documentElement.style.setProperty('--nav-h', h+'px');
+}
+window.addEventListener('resize', syncNavHeight, {passive:true});
+window.addEventListener('orientationchange', syncNavHeight, {passive:true});
 
 // ─── ICONS ───────────────────────────────────────────────────────────────────
 const IP={
@@ -539,21 +584,35 @@ function pageInsights(){
       ${card(`<div style="padding:14px"><div style="font-size:11px;color:${t.mut}">Daily avg</div><div style="font-size:22px;font-weight:700;color:${t.txt};margin-top:6px">4h 36m</div></div>`)}
       ${card(`<div style="padding:14px"><div style="font-size:11px;color:${t.mut}">Best day</div><div style="font-size:22px;font-weight:700;color:${t.txt};margin-top:6px">Tue</div></div>`)}
     </div>
+    <div class="fu fu5 mt3">${card(`<div style="padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div><div style="font-weight:800;color:${t.txt}">Focus Insights</div><div style="font-size:12px;color:${t.mut};margin-top:2px">Your saved focus sessions.</div></div>
+        <button class="btn-pill" onclick="openFocusDetail()" style="background:${t.surf2};color:${t.acc}">Details</button>
+      </div>
+      <div class="fire-week" style="margin-bottom:14px">${focusWeekDays().map(d=>`<div class="fire-day${d.on?' on':''}" style="border-color:${d.today?t.acc:t.bdr};background:${d.today?t.page:t.surf2};color:${d.on?t.txt:t.mut}"><div class="fire-emoji">🔥</div><div class="fire-label">${d.label}</div></div>`).join("")}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        ${[["Week",focusStats().weekMins+"m"],["Sessions",focusStats().sessions],["Avg",focusStats().avgScore||"—"]].map(([l,v])=>`<div style="border-radius:14px;background:${t.page};border:1px solid ${t.bdr};padding:12px 6px;text-align:center"><div style="font-size:10px;font-weight:800;color:${t.mut};text-transform:uppercase;letter-spacing:.08em">${l}</div><div style="font-size:17px;font-weight:900;color:${t.txt};margin-top:5px">${v}</div></div>`).join("")}
+      </div>
+    </div>`)}</div>
   </div>`;
 }
 
 function pageFocus(){
-  const t=c(), total=fTotal(), pct=fPct(), tstr=fStr();
+  const t=c(), pct=fPct(), tstr=fStr();
   const dashOff=(578-(pct/100)*578).toFixed(1);
   const presets=[{name:"Deep Work",sub:"45 min · strict",mins:45},{name:"Study",sub:"25 min · balanced",mins:25},{name:"Reading",sub:"30 min · calm",mins:30}];
   const ruleLabels=["Block social apps","Silence notifications","Save session to report"];
   const ruleKeys=["social","notifs","save"];
+  const activeSession=S.frun||S.fsessionStartSec>0;
+  const last=S.flastSummary;
+  const week=focusWeekDays();
+  const st=focusStats();
   return topbar("Focus Mode","Deep work",S.frun?"Running":"Ready","settings")+`
   <div id="page-wrap">
     <div class="fu fu1 mt3">${card(`<div style="padding:16px;text-align:center">
       <div id="f-status-pill" style="display:inline-flex;align-items:center;gap:8px;border-radius:99px;border:1px solid ${t.bdr};background:${t.page};color:${t.acc};padding:5px 14px;font-size:12px;font-weight:600">
         <span style="width:7px;height:7px;border-radius:50%;background:${S.frun?"#00ba7c":t.acc}"></span>
-        ${S.frun?"Session running":"Ready to lock in"}
+        ${S.frun?"Focus active":activeSession?"Session paused":"Ready to lock in"}
       </div>
       <div class="focus-ring">
         <div class="focus-glow" style="background:${t.surf2}"></div>
@@ -569,21 +628,50 @@ function pageFocus(){
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
-        ${[["Left",`<span id="f-left">${Math.floor(S.fsec/60)}m</span>`],["Blocked",""+S.fblocked.length],["Mode","Strict"]].map(([l,v])=>`
+        ${[["Left",`<span id="f-left">${Math.floor(S.fsec/60)}m</span>`],["Blocked",""+S.fblocked.length],["This week",st.weekMins+"m"]].map(([l,v])=>`
           <div style="border-radius:14px;border:1px solid ${t.bdr};background:${t.page};padding:11px 6px;text-align:center">
             <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:${t.mut}">${l}</div>
             <div style="font-size:16px;font-weight:700;color:${t.txt};margin-top:4px">${v}</div>
           </div>`).join("")}
       </div>
-      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px">
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:14px">
         <button class="btn-full" id="f-btn" style="background:${t.acc}">
-          ${ic(S.frun?"pause":"play",18)} ${S.frun?"Pause Session":"Start Focus Session"}
+          ${ic(S.frun?"pause":"play",18)} ${S.frun?"Pause":"Start"}
         </button>
         <button class="btn-outline" onclick="doReset()" style="border-color:${t.bdr};color:${t.txt};background:${t.surf2};padding:15px 14px">Reset</button>
+        <button class="btn-outline" onclick="doEndSession()" style="border-color:${activeSession?t.acc:t.bdr};color:${activeSession?t.acc:t.mut};background:${t.surf};padding:15px 14px">End</button>
       </div>
     </div>`)}</div>
 
-    <div class="fu fu2 mt3" style="display:flex;flex-direction:column;gap:8px">
+    <div class="fu fu2 mt3">${card(`<div style="padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px">
+        <div>
+          <div style="font-weight:800;color:${t.txt}">Weekly focus fire</div>
+          <div style="font-size:12px;color:${t.mut};margin-top:2px">Finish a session to light up today.</div>
+        </div>
+        <button class="btn-pill" onclick="openFocusDetail()" style="background:${t.surf2};color:${t.acc}">Details</button>
+      </div>
+      <div class="fire-week">
+        ${week.map(d=>`<div class="fire-day${d.on?' on':''}" style="border-color:${d.today?t.acc:t.bdr};background:${d.today?t.page:t.surf2};color:${d.on?t.txt:t.mut}">
+          <div class="fire-emoji">🔥</div>
+          <div class="fire-label">${d.label}</div>
+        </div>`).join("")}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+        <button class="btn-row" onclick="openFocusDetail()" style="background:${t.surf2};color:${t.txt};border:1px solid ${t.bdr}">View sessions</button>
+        <button class="btn-row" onclick="goFocusInsights()" style="background:${t.acc};color:#fff">Open insights</button>
+      </div>
+    </div>`)}</div>
+
+    ${last?`<div class="fu fu3 mt3">${card(`<div style="padding:16px;display:flex;align-items:center;gap:12px">
+      <div style="width:44px;height:44px;border-radius:14px;background:${t.surf2};display:grid;place-items:center;color:${t.acc};flex-shrink:0">${ic("check",22)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700;color:${t.txt}">${last.done?"Session complete":"Session saved"}</div>
+        <div style="font-size:13px;color:${t.mut};margin-top:3px">${last.mins} min focused · ${last.apps} apps blocked</div>
+      </div>
+    </div>`)}</div>`:""}
+
+    <div class="fu fu4 mt3" style="display:flex;flex-direction:column;gap:8px">
       ${presets.map(p=>{
         const sel=S.fpreset===p.name;
         return `<button class="preset" data-preset="${p.name}" onclick="doPreset('${p.name}',${p.mins})" style="border-color:${sel?t.acc:t.bdr};background:${sel?t.surf2:t.surf}">
@@ -598,11 +686,11 @@ function pageFocus(){
       }).join("")}
     </div>
 
-    <div class="fu fu3 mt3">${card(`<div style="padding:16px">
+    <div class="fu fu5 mt3">${card(`<div style="padding:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div>
           <div style="font-weight:700;color:${t.txt}">Blocked Apps</div>
-          <div style="font-size:12px;color:${t.mut};margin-top:2px">Hidden during session.</div>
+          <div style="font-size:12px;color:${t.mut};margin-top:2px">Hidden during focus.</div>
         </div>
         <button class="btn-pill" onclick="upd({fmodal:true})" style="background:${t.surf2};color:${t.acc}">Manage</button>
       </div>
@@ -614,7 +702,7 @@ function pageFocus(){
       </div>
     </div>`)}</div>
 
-    <div class="fu fu4 mt3">${card(`<div style="padding:16px">
+    <div class="fu fu6 mt3">${card(`<div style="padding:16px">
       <div style="font-weight:700;color:${t.txt};margin-bottom:10px">Focus Rules</div>
       ${ruleLabels.map((label,i)=>{
         const key=ruleKeys[i], on=S.frules[key];
@@ -712,6 +800,75 @@ function pageProfile(){
 function fTotal(){return S.fpreset==="Deep Work"?45*60:S.fpreset==="Study"?25*60:30*60;}
 function fPct(){return Math.max(0,Math.min(100,Math.round((S.fsec/fTotal())*100)));}
 function fStr(){const m=Math.floor(S.fsec/60),s=S.fsec%60;return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");}
+function focusStats(){
+  const hist=S.fhistory||[];
+  const sessions=hist.length;
+  const weekKeys=new Set(focusWeekDays().map(d=>d.key));
+  const weekMins=hist.filter(h=>weekKeys.has(h.dateKey)).reduce((sum,h)=>sum+(Number(h.mins)||0),0);
+  const avgScore=sessions?Math.round(hist.reduce((sum,h)=>sum+(Number(h.score)||0),0)/sessions):0;
+  return {sessions,weekMins,avgScore};
+}
+function focusWhenLabel(){
+  const d=new Date();
+  return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+}
+function focusDateKey(d=new Date()){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function focusWeekDays(){
+  const now=new Date();
+  const day=(now.getDay()+6)%7; // Monday = 0
+  const monday=new Date(now);monday.setHours(0,0,0,0);monday.setDate(now.getDate()-day);
+  const hist=S.fhistory||[];
+  const lit=new Set(hist.filter(h=>h.dateKey).map(h=>h.dateKey));
+  const labels=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const todayKey=focusDateKey(now);
+  return labels.map((label,i)=>{
+    const d=new Date(monday);d.setDate(monday.getDate()+i);
+    const key=focusDateKey(d);
+    const legacyLit=hist.some(h=>!h.dateKey && (h.when===label || (h.when==="Today"&&key===todayKey)));
+    return {label,key,on:lit.has(key)||legacyLit,today:key===todayKey};
+  });
+}
+function persistFocusData(){
+  try{localStorage.setItem("cm_focus_data",JSON.stringify({fhistory:S.fhistory,flastSummary:S.flastSummary}));}catch(e){}
+}
+function loadFocusData(){
+  try{
+    const raw=localStorage.getItem("cm_focus_data");
+    if(!raw)return;
+    const d=JSON.parse(raw);
+    if(Array.isArray(d.fhistory))S.fhistory=d.fhistory;
+    if(d.flastSummary)S.flastSummary=d.flastSummary;
+  }catch(e){}
+}
+function saveFocusSession(done){
+  const start=S.fsessionStartSec||fTotal();
+  const elapsed=Math.max(0,start-S.fsec);
+  const mins=Math.max(1,Math.round(elapsed/60));
+  const ratio=start?Math.min(1,elapsed/start):1;
+  const score=done?95:Math.max(45,Math.round(55+ratio*40));
+  const entry={name:S.fpreset,mins,score,apps:S.fblocked.length,done:!!done,when:focusWhenLabel(),dateKey:focusDateKey(),at:Date.now()};
+  S.fhistory=[entry,...(S.fhistory||[])].slice(0,30);
+  S.flastSummary=entry;
+  S.fsessionStartSec=0;
+  S.fsessionStartedAt=null;
+  persistFocusData();
+  return entry;
+}
+function focusHistoryRows(t,limit=8){
+  const hist=(S.fhistory||[]).slice(0,limit);
+  return hist.length?hist.map((h,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;${i?"border-top:1px solid "+t.line+";padding-top:11px;":""}">
+      <div style="width:36px;height:36px;border-radius:13px;background:${t.surf2};display:grid;place-items:center;font-size:17px;flex-shrink:0">${h.done?"🔥":"✓"}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:800;color:${t.txt};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.name}</div>
+        <div style="font-size:12px;color:${t.mut};margin-top:2px">${h.when} · ${h.mins} min · ${h.apps} apps blocked</div>
+      </div>
+      <div style="font-size:12px;font-weight:800;color:${t.acc};background:${t.surf2};border-radius:999px;padding:5px 8px">${h.score}</div>
+    </div>`).join(""):`<div style="border-radius:14px;background:${t.page};border:1px solid ${t.bdr};padding:16px;text-align:center;color:${t.mut};font-size:13px">No saved focus sessions yet.</div>`;
+}
 // dashoffset: 0 = full ring (100% time left), 578 = empty ring (0% left)
 function fDash(){return (578-(fPct()/100)*578).toFixed(1);}
 
@@ -739,13 +896,13 @@ function syncFocusDOM(){
   if(fb){
     fb.removeAttribute("onclick");
     fb.onclick= S.frun ? doPause : doStart;
-    fb.innerHTML=`${ic(S.frun?"pause":"play",18)} ${S.frun?"Pause Session":"Start Focus Session"}`;
+    fb.innerHTML=`${ic(S.frun?"pause":"play",18)} ${S.frun?"Pause":"Start"}`;
   }
 
   // Status pill text
   const sp=document.getElementById("f-status-pill");
   if(sp){
-    sp.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${S.frun?"#00ba7c":col.acc}"></span> ${S.frun?"Session running":"Ready to lock in"}`;
+    sp.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${S.frun?"#00ba7c":col.acc}"></span> ${S.frun?"Session running":S.fsessionStartSec>0?"Session paused":"Ready to lock in"}`;
   }
 
   // Modal time
@@ -759,12 +916,15 @@ function startTimer(){
     if(S.fsec<=1){
       stopTimer();
       haptic([10,60,20]);
-      S.fsec=0; S.frun=false;
+      S.fsec=0; S.frun=false; S.fimmersive=false;
+      if(S.frules.save) saveFocusSession(true);
       syncFocusDOM();
       // Show completion modal
       const col=TH[S.theme]||TH.dark;
+      if(S.tab==="focus") renderPage(col,false,false);
       S.fmodal=true;
       drawModals(col);
+      drawFocusLive(col);
     } else {
       S.fsec--;
       syncFocusDOM();
@@ -790,6 +950,8 @@ function doPreset(name,mins){
   S.fpreset=name;
   S.fsec=mins*60;
   S.frun=false;
+  S.fsessionStartSec=0;
+  S.fsessionStartedAt=null;
   const col=TH[S.theme]||TH.dark;
   // Swap preset button styles
   document.querySelectorAll(".preset").forEach(btn=>{
@@ -805,31 +967,84 @@ function doPreset(name,mins){
 
 function doStart(){
   if(S.fsec<=0) S.fsec=fTotal();
+  if(S.fsessionStartSec>0){
+    beginFocusSession();
+    return;
+  }
+  S.fstartConfirm=true;
+  drawModals(c());
+}
+
+function cancelStartFocus(){
+  S.fstartConfirm=false;
+  drawModals(c());
+}
+
+function beginFocusSession(){
+  if(S.fsec<=0) S.fsec=fTotal();
+  if(!S.fsessionStartSec){S.fsessionStartSec=S.fsec;S.fsessionStartedAt=Date.now();}
   haptic([6,50,10]);
+  S.fstartConfirm=false;
+  S.fimmersive=true;
   S.frun=true;
   syncFocusDOM();
   startTimer();
-  const col=TH[S.theme]||TH.dark;
-  drawModals(col);
+  drawModals(c());
+  drawFocusLive(c());
+}
+
+function addFocusTime(mins){
+  S.fsec+=mins*60;
+  if(S.fsessionStartSec)S.fsessionStartSec+=mins*60;
+  haptic([4]);
+  syncFocusDOM();
+  drawFocusLive(c());
+}
+
+function exitFocusLive(){
+  S.fimmersive=false;
+  drawFocusLive(c());
 }
 
 function doPause(){
   stopTimer();
   haptic([4]);
   S.frun=false;
+  S.fimmersive=false;
   syncFocusDOM();
   const col=TH[S.theme]||TH.dark;
   drawModals(col);
+  drawFocusLive(col);
 }
 
 function doReset(){
   stopTimer();
   haptic([4]);
   S.frun=false;
+  S.fimmersive=false;
   S.fsec=fTotal();
+  S.fsessionStartSec=0;
+  S.fsessionStartedAt=null;
   syncFocusDOM();
   const col=TH[S.theme]||TH.dark;
   drawModals(col);
+  drawFocusLive(col);
+}
+
+function doEndSession(){
+  const hadProgress=S.fsessionStartSec>0 && S.fsessionStartSec>S.fsec;
+  stopTimer();
+  haptic([10,50,10]);
+  S.frun=false;
+  S.fimmersive=false;
+  if(hadProgress&&S.frules.save) saveFocusSession(S.fsec<=0);
+  S.fsec=fTotal();
+  S.fsessionStartSec=0;
+  S.fsessionStartedAt=null;
+  const col=TH[S.theme]||TH.dark;
+  if(S.tab==="focus") renderPage(col,false,false);
+  drawModals(col);
+  drawFocusLive(col);
 }
 
 function toggleRule(key){
@@ -1086,6 +1301,68 @@ function drawNotif(t){
     </div>`;
 }
 
+
+// ─── FOCUS DETAIL & LIVE SCREEN ─────────────────────────────────────────────
+function drawFocusLive(t){
+  const el=document.getElementById("focus-live");
+  if(!el)return;
+  if(!S.fimmersive){el.className="focus-live";el.innerHTML="";return;}
+  el.className="focus-live open";
+  el.innerHTML=`
+    <div class="focus-orb"></div><div class="focus-orb two"></div><div class="focus-orb three"></div>
+    <div class="focus-live-inner">
+      <div>
+        <div class="focus-live-chip">${S.fpreset} · ${S.fblocked.length} apps blocked</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.62);margin-top:14px">Focus mode is active</div>
+      </div>
+      <div>
+        <div class="focus-live-time f-time-el">${fStr()}</div>
+        <div class="focus-live-sub">Stay here. Everything else can wait.</div>
+      </div>
+      <div style="width:100%">
+        <div class="focus-live-actions">
+          <button class="focus-live-btn" onclick="addFocusTime(5)">+5 min</button>
+          <button class="focus-live-btn" onclick="addFocusTime(15)">+15 min</button>
+        </div>
+        <div class="focus-live-actions" style="margin-top:10px">
+          <button class="focus-live-btn" onclick="doPause()">Pause</button>
+          <button class="focus-live-btn focus-live-end" onclick="doEndSession()">End session</button>
+        </div>
+      </div>
+    </div>`;
+}
+function openFocusDetail(){S.fdetailModal=true;drawFocusDetail(c());}
+function closeFocusDetail(){S.fdetailModal=false;drawFocusDetail(c());}
+function goFocusInsights(){S.fdetailModal=false;drawFocusDetail(c());doNav("insights");}
+function drawFocusDetail(t){
+  const bg=document.getElementById("mod-focus-detail");
+  const sh=document.getElementById("mod-focus-detail-sheet");
+  if(!bg||!sh)return;
+  const st=focusStats();
+  const week=focusWeekDays();
+  sh.style.borderColor=t.bdr;sh.style.background=t.surf;
+  sh.innerHTML=`
+    <div class="modal-handle" style="background:${t.bdr}"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
+      <div>
+        <div style="font-size:18px;font-weight:800;color:${t.txt}">Focus details</div>
+        <div style="font-size:13px;color:${t.mut};margin-top:3px">${st.weekMins} min this week · ${st.sessions} saved sessions</div>
+      </div>
+      <button onclick="closeFocusDetail()" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px;flex-shrink:0">×</button>
+    </div>
+    <div class="fire-week" style="margin-bottom:14px">
+      ${week.map(d=>`<div class="fire-day${d.on?' on':''}" style="border-color:${d.today?t.acc:t.bdr};background:${d.today?t.page:t.surf2};color:${d.on?t.txt:t.mut}"><div class="fire-emoji">🔥</div><div class="fire-label">${d.label}</div></div>`).join("")}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      ${[["Week",st.weekMins+"m"],["Sessions",st.sessions],["Avg",st.avgScore||"—"]].map(([l,v])=>`<div style="border-radius:14px;background:${t.page};border:1px solid ${t.bdr};padding:12px 6px;text-align:center"><div style="font-size:10px;font-weight:800;color:${t.mut};text-transform:uppercase;letter-spacing:.08em">${l}</div><div style="font-size:17px;font-weight:900;color:${t.txt};margin-top:5px">${v}</div></div>`).join("")}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:11px;max-height:240px;overflow-y:auto;padding-right:2px">
+      ${focusHistoryRows(t,12)}
+    </div>
+    <button class="btn-full" onclick="goFocusInsights()" style="background:${t.acc};margin-top:14px">Open Focus Insights</button>`;
+  bg.className="modal-bg"+(S.fdetailModal?" open":"");
+}
+
 // ─── MODALS ──────────────────────────────────────────────────────────────────
 function drawModals(t){
   // Focus modal
@@ -1093,11 +1370,29 @@ function drawModals(t){
   const fs=document.getElementById("mod-focus-sheet");
   const tstr=fStr();
   fs.style.borderColor=t.bdr;fs.style.background=t.surf;
-  fs.innerHTML=`
+  if(S.fstartConfirm){
+    fs.innerHTML=`
+    <div class="modal-handle" style="background:${t.bdr}"></div>
+    <div style="text-align:center;padding:4px 0 8px">
+      <div style="width:58px;height:58px;border-radius:22px;background:${t.surf2};display:grid;place-items:center;margin:0 auto 13px;font-size:28px">🛡️</div>
+      <div style="font-size:19px;font-weight:800;color:${t.txt}">Block everything and start?</div>
+      <div style="font-size:14px;color:${t.mut};line-height:1.5;margin-top:8px">ClearMind will enter a quiet focus screen and keep your blocked apps out of sight.</div>
+    </div>
+    <div style="border-radius:16px;background:${t.page};border:1px solid ${t.bdr};padding:13px;margin-top:12px">
+      <div style="display:flex;justify-content:space-between;font-size:14px;color:${t.txt}"><span>${S.fpreset}</span><b>${Math.floor(S.fsec/60)} min</b></div>
+      <div style="font-size:12px;color:${t.mut};margin-top:5px">${S.fblocked.length} apps blocked · strict focus screen</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+      <button class="btn-row btn-outline" onclick="cancelStartFocus()" style="border-color:${t.bdr};color:${t.txt};background:${t.surf2}">Cancel</button>
+      <button class="btn-row btn-full" onclick="beginFocusSession()" style="background:${t.acc}">Start Focus</button>
+    </div>`;
+  } else {
+    const tstr=fStr();
+    fs.innerHTML=`
     <div class="modal-handle" style="background:${t.bdr}"></div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
       <div>
-        <div style="font-size:18px;font-weight:700;letter-spacing:-.03em;color:${t.txt}">${S.frun?"Session running":S.fsec===0?"Session complete":"Focus controls"}</div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:-.03em;color:${t.txt}">${S.frun?"Session running":S.fsec===0?"Session complete":S.fsessionStartSec>0?"Session paused":"Focus controls"}</div>
         <div style="font-size:13px;color:${t.mut};margin-top:3px">${S.frun?"Distractions blocked.":"Manage your session."}</div>
       </div>
       <button onclick="closeModal('focus')" style="width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:${t.surf2};color:${t.mut};font-size:18px;flex-shrink:0">×</button>
@@ -1108,9 +1403,10 @@ function drawModals(t){
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
       <button id="m-main-btn" class="btn-row btn-full" style="background:${t.acc}">${S.frun?"Pause":"Resume"}</button>
-      <button class="btn-row btn-outline" onclick="doReset();closeModal('focus')" style="border-color:${t.bdr};color:${t.txt}">End</button>
+      <button class="btn-row btn-outline" onclick="doEndSession();closeModal('focus')" style="border-color:${t.bdr};color:${t.txt}">End Session</button>
     </div>`;
-  fm.className="modal-bg"+(S.fmodal?" open":"");
+  }
+  fm.className="modal-bg"+((S.fmodal||S.fstartConfirm)?" open":"");
 
   // Insights modal
   const im=document.getElementById("mod-insight");
@@ -1135,9 +1431,11 @@ function drawModals(t){
     </div>`;
   im.className="modal-bg"+(S.imodal?" open":"");
   wireFocusBtn();
+  drawFocusDetail(t);
+  drawFocusLive(t);
 }
 
-function closeModal(which){haptic([4]);if(which==="focus")upd({fmodal:false});else upd({imodal:false});}
+function closeModal(which){haptic([4]);if(which==="focus"){S.fstartConfirm=false;upd({fmodal:false});}else upd({imodal:false});}
 
 // ─── NAV ─────────────────────────────────────────────────────────────────────
 function drawNav(t){
@@ -1216,7 +1514,7 @@ scr.addEventListener("touchend",e=>{
   }
 },{passive:true});
 document.addEventListener("touchmove",e=>{
-  if(!e.target.closest("#scroller,.modal-sheet,.inst-sheet,.notif-inner,.add-limit-sheet"))e.preventDefault();
+  if(!e.target.closest("#scroller,.modal-sheet,.inst-sheet,.notif-inner,.add-limit-sheet,.focus-live"))e.preventDefault();
 },{passive:false});
 
 // ─── PWA ─────────────────────────────────────────────────────────────────────
@@ -1242,9 +1540,10 @@ function initPWA(){
 }
 
 // ─── EXPOSE ──────────────────────────────────────────────────────────────────
-Object.assign(window,{upd,doNav,doPreset,doStart,doPause,doReset,haptic,doInstall,closeModal,closeInst,openNotif,closeNotif,openAddLimit,closeAddLimit,confirmAddLimit,pickMins,removeLimit,toggleRule,handleSetting,openProfileSheet,wireFocusBtn,syncFocusDOM});
+Object.assign(window,{upd,doNav,doPreset,doStart,cancelStartFocus,beginFocusSession,addFocusTime,exitFocusLive,doPause,doReset,doEndSession,haptic,doInstall,closeModal,closeInst,openNotif,closeNotif,openFocusDetail,closeFocusDetail,goFocusInsights,openAddLimit,closeAddLimit,confirmAddLimit,pickMins,removeLimit,toggleRule,handleSetting,openProfileSheet,wireFocusBtn,syncFocusDOM});
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
+loadFocusData();
 initPWA();
 const _t=TH[S.theme];
 applyTheme(_t);
