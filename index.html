@@ -29,9 +29,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 /* ── LAYOUT SHELL ── */
 #shell {
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* ── SCROLL AREA ── */
@@ -48,9 +49,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 #nav {
   flex-shrink: 0;
   border-top: 1px solid;
-  padding: 6px 4px 0;
+  padding-top: 6px;
+  padding-left: 4px;
+  padding-right: 4px;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
-  min-height: 56px;
 }
 .nav-inner {
   max-width: 430px;
@@ -432,6 +434,7 @@ function applyTheme(t) {
   ds.setProperty('--acc',  t.acc);
   document.getElementById('tc').content = t.bg;
   document.body.style.background = t.bg;
+  document.getElementById('shell').style.background = t.bg;
   document.getElementById('scroller').style.background = t.page;
 }
 
@@ -947,7 +950,7 @@ function drawNav() {
   const c = t();
   const el = document.getElementById("nav");
   el.style.borderColor = c.line;
-  el.style.background  = c.bg + "ee";
+  el.style.background  = c.bg; /* fully opaque — no transparency */
   document.getElementById("navrow").innerHTML = TABS.map(tab => {
     const sel = S.tab === tab.id;
     return `<button class="ntab${sel?" on":""}" onclick="doNav('${tab.id}')" style="color:${sel?c.acc:c.mut}">
